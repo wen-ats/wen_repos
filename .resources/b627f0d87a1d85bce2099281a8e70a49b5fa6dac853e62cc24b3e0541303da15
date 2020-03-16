@@ -1,0 +1,13 @@
+def InsertAlarm(EventID,AlarmID,StartTime):
+	sel = "INSERT INTO alarm_pareto_table (EventID, AlarmID, StartTime) VALUES (?,?,?)"
+	system.db.runPrepUpdate(sel,[EventID,AlarmID,StartTime],'FMSLine')
+	
+def UpdateAlarm(EventID):
+	results= system.db.runPrepQuery("SELECT StartTime FROM alarm_pareto_table WHERE EventID = ?", [EventID],'FMSLine')
+	newDataset = system.dataset.toDataSet(results)
+	## Get the Values retun by Query 
+	EndTime = system.date.now()
+	StartTime = newDataset.getValueAt(0,'StartTime')
+	Duration = (system.date.toMillis(EndTime) - system.date.toMillis(StartTime))/1000
+	Sel = "UPDATE alarm_pareto_table SET EndTime = ?, Duration = ? where EventID = ?"
+	system.db.runPrepUpdate(Sel,[EndTime,Duration,EventID],'FMSLine')

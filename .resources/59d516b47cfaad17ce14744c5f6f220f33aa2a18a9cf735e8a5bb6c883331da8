@@ -1,0 +1,35 @@
+def pickFromSB1():
+	count=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Production/Count").value
+	if count!=0:
+		position=system.db.runScalarQuery('SELECT MachineID FROM partid_fms WHERE PartID!="0" and MachineID>80 and MachineID <90 ORDER BY TimeStamp LIMIT 1',"FMSLine")
+	else:
+		position=0
+	return position
+	
+def getPartID(position):
+	partID=system.db.runScalarPrepQuery("SELECT PartID FROM Partid_fms WHERE MachineID=?",[position],"FMSLine")
+	return partID
+	
+def transferPartToVI(PartID):
+	WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+	Recipe=system.db.runScalarPrepQuery("SELECT RecipeID FROM workorder_fms WHERE ID=?",[WOID],"FMSLine")
+	query="SELECT VIModel FROM recipe_fms WHERE RecipeID=" +str(Recipe)
+	VIModelID=system.db.runScalarQuery(query,"FMSLine")
+	VIModel=system.db.runScalarPrepQuery("SELECT Name FROM models_fms WHERE ModelID=? and CellID=10",[VIModelID],"FMSLine")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Command/SCADA_PartID",PartID)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Command/SCADA_Recipe",VIModel)
+	status=1
+	return status
+	
+def SB2Cell(Bay1Present,Bay2Present):
+	if Bay1Present==1 and Bay2Present==0:
+		cellid=system.db.runScalarQuery('SELECT MachineID FROM partID_fms WHERE PartID="0" and MachineID>110 and MachineID <120 ORDER BY MachineID LIMIT 1',"FMSLine")
+	elif Bay1Present==0 and Bay2Present==1:
+		cellid=system.db.runScalarQuery('SELECT MachineID FROM partID_fms WHERE PartID="0" and MachineID>120 and MachineID <130 ORDER BY MachineID LIMIT 1',"FMSLine")
+	return cellid
+
+def deleteFromDB(cellID):
+	system.db.runPrepUpdate('UPDATE partid_fms SET PartID="0", timestamp=NOW() WHERE MachineID=?',[cellID],"FMSLine")
+	
+def transferPartToSB2(PartID,CellID):
+	system.db.runPrepUpdate("Update partid_fms SET PartID=?, timestamp=NOW() WHERE machineID=?",[PartID,CellID],"FMSLine")

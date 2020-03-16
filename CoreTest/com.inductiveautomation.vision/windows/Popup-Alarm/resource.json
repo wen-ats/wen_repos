@@ -1,0 +1,19 @@
+{
+  "scope": "C",
+  "version": 2,
+  "restricted": false,
+  "overridable": true,
+  "files": [
+    "window.bin",
+    "thumbnail.png"
+  ],
+  "attributes": {
+    "lastModification": {
+      "actor": "admin",
+      "timestamp": "2020-02-21T03:11:29Z"
+    },
+    "xml-format-version": 1,
+    "parameter-names": "MachineUDT",
+    "lastModificationSignature": "934cfffa3232b37b0a4f436193e8b87a0471ceea556b284ca058bae703f5edb1"
+  }
+}

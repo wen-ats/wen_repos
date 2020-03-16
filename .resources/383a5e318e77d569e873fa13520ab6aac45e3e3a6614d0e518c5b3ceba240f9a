@@ -1,0 +1,123 @@
+def flagevents(FlagName,MachineName,Value):
+	value=int(Value)
+	date= system.date.format( system.date.now(),"yyyy-MM-dd HH:mm:ss") 
+	flagID=system.db.runScalarPrepQuery("SELECT FlagID FROM Flags WHERE FlagName=?",[FlagName],"FMSLine")
+	print flagID
+	machineID=system.db.runScalarPrepQuery("SELECT ID FROM cell WHERE CellCode=?",[MachineName],"FMSLine")
+	print machineID
+	system.db.runPrepUpdate("INSERT INTO machineflagshistory (machineID,flagID,value,timestamp) VALUES(?,?,?,?)",[machineID,flagID,value,date],"FMSLine")
+	if FlagName!="MachineMode":
+		if value==1:
+			status=system.db.runScalarPrepQuery("SELECT MachineState FROM flags Where FlagName=?",[FlagName],"FMSLine")
+			tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+str(MachineName)+"/Production/MachineStatus"
+			system.tag.write(tagPath,status)
+	else:
+		if value==0:
+			tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+MachineName+"/Production/MachineStatus"
+			system.tag.write(tagPath,1)
+		if value==1:
+			tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+MachineName+"/Production/MachineStatus"
+			system.tag.write(tagPath,2)
+	
+def partDesc(PartID,StepID):
+	logger= system.util.getLogger("PartID Transfer")
+	machineCode=system.db.runPrepQuery("SELECT cellcode FROM cells WHERE cellID=?",[MachineID],"FMSLine")
+	recipeID=shared.AR.nextRecipe(PartID,StepID)
+	if machineCode=='IML':
+		logger.error("No Load Status for IML")
+	elif machineCode=='CNC':
+		tagPathStep="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID"
+		tagPathPart="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Part_ID"
+		tagPathRecipe="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Recipe_ID"
+		system.tag.write(tagPathStep,StepID)
+		system.tag.write(tagPathPart,PartID)
+		system.tag.write(tagPathRecipe,recipeID)
+	elif machineCode=='DB' or MachineCode=='IML':	
+		tagPathStep="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID"
+		tagPathPart="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/PartID"
+		system.tag.write(tagPathStep,StepID)
+		system.tag.write(tagPathPart,PartID)
+	elif machineCode=='LaserCutting' or machineCode=='LM':
+		tagPathStep="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID"
+		tagPathPart="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_PartID"
+		tagPathRecipe="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_Recipe"
+		system.tag.write(tagPathStep,StepID)
+		system.tag.write(tagPathPart,PartID)
+		system.tag.write(tagPathRecipe,recipeID)
+	else:
+		logger.error("Error")
+		
+def idealCT(PartID,StepID,MachineName):
+	try:
+		WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+		recipeID=system.db.runScalarPrepQuery("SELECT RECIPEID FROM WorkOrder_FMS WHERE ID=?",[WOID],"FMSLine")
+		model=system.db.runScalarPrepQuery("SELECT Model? FROM Recipe_fms WHERE RecipeID=?",[StepID,recipeID],"FMSLine") 
+		machineID=system.db.runScalarPrepQuery("SELECT ID FROM cell WHERE cellCode=?",[MachineName],"FMSLine")
+		idealCT=system.db.runScalarPrepQuery("SELECT idealcycletime FROM models_fms WHERE modelid=? and CellID=?",[model,machineID],"FMSLine")
+	except:
+		idealCT=0
+	return idealCT
+
+def previousStn(PartID,StepID):
+	if PartID!="0" and PartID!="" and PartID!=None:
+		if StepID==0:
+			print "No Station"
+			MachineName="No Station"
+		if StepID==1:
+			print "No Previous Station"
+			MachineName="No Previous Station"
+		if StepID>1:
+			WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+			recipeID=system.db.runScalarPrepQuery("SELECT RECIPEID FROM WorkOrder_FMS WHERE ID=?",[WOID],"FMSLine")
+			queryPStepID="SELECT Step"+str(int(StepID)-1)+' FROM recipe_fms WHERE RecipeID="'+str(recipeID)+'"'
+			pMachineID=system.db.runScalarQuery(queryPStepID,"FMSLine")
+			MachineName=system.db.runScalarPrepQuery("SELECT Name FROM cell WHERE ID=?",[pMachineID],"FMSLine")
+			return MachineName
+	else:
+		print "No PartID Present"
+		MachineName="No PartID Present"
+	return MachineName
+	
+def nextStn(PartID,StepID):
+	if PartID!="0" and PartID!="" and PartID!=None:
+		if StepID==0:
+#			print "No Station"
+			MachineName="No Station"
+		if StepID==20:
+#			print "No Next Station"
+			MachineName="No Next Station"
+		if StepID<20:
+			WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+			recipeID=system.db.runScalarPrepQuery("SELECT RECIPEID FROM WorkOrder_FMS WHERE ID=?",[WOID],"FMSLine")
+			queryPStepID="SELECT Step"+str(int(StepID)+1)+' FROM recipe_fms WHERE RecipeID="'+str(recipeID)+'"'
+			nMachineID=system.db.runScalarQuery(queryPStepID,"FMSLine")
+			if nMachineID==8:
+				MachineName="SB1"
+			else:
+				MachineName=system.db.runScalarPrepQuery("SELECT Name FROM cell WHERE ID=?",[nMachineID],"FMSLine")
+			return MachineName
+	else:
+		print "No PartID Present"
+		MachineName="No PartID Present"
+	return MachineName
+	
+def deletePartID(PartID):
+	logger=system.util.getLogger("PartID Deleted")
+	machineID=system.db.runScalarPrepQuery("SELECT MachineID FROM partid_fms WHERE PartID=?",[PartID],"FMSLine")
+	machineCode=system.db.runScalarPrepQuery("SELECT CellCode FROM cell WHERE ID=?",[machineID],"FMSLine")
+	system.db.runPrepUpdate("UPDATE partid_fms SET partID=0 WHERE machineID=?",[machineID],"FMSLine")
+	if machineCode=='IML':
+		tagPathPart="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineName+"/Command/PartID"
+		system.tag.write(tagPathPart,'0')
+#		logger.error("No Load Status for IML")
+	elif machineCode=='CNC':
+		tagPathPart="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Part_ID"
+		system.tag.write(tagPathPart,'0')
+	elif machineCode=='DB' or machineCode=='IML':	
+		tagPathPart="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/PartID"
+		system.tag.write(tagPathPart,'0')
+	elif machineCode=='LaserCutting' or machineCode=='LM':
+		tagPathPart="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_PartID"
+		system.tag.write(tagPathPart,'0')
+	else:
+		logger.error("No part ID")

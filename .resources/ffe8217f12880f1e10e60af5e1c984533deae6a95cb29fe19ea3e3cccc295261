@@ -1,0 +1,254 @@
+<?xml version="1.0" ?>
+<sfc zoom="0.99999994" canvas="30 36" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Wed Oct 23 16:37:41 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<onstart>def onStart(chart):
+	"""
+	This will run once when the chart is started.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+	"""
+</onstart>
+	<step id="efca19d9-686a-435b-984d-de5eb07cc905" location="7 1" name="__begin" factory-id="begin-step">
+<parameters>
+	<parameter><name>MachineID</name><expression>1</expression></parameter>
+	<parameter><name>MachineName</name><expression>'IML'</expression></parameter>
+</parameters>
+	</step>
+	<step id="f564ce27-6115-4eee-a70c-72ead80eec92" location="7 4" name="MachineName" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.MachineName=system.db.runScalarPrepQuery("SELECT cellCode FROM cell WHERE ID=?",[chart.MachineID],"FMSLine")</start-script>
+	</step>
+	<step id="dc6df43b-9352-4372-b997-5387f526ed95" location="2 8" name="PickReset" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/PickDone",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Messages","Pick Reset Done")</start-script>
+	</step>
+	<step id="1d0fbd63-dd27-43e8-8387-d79673389b1c" location="5 8" name="GoingtoNextMachine" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	if chart.MachineID&gt;=5:
+		chart.MachineID=1
+	else:
+		chart.MachineID=chart.MachineID+1
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Alarms/Alarm142",0)</start-script>
+	</step>
+	<step id="0e2593fe-81f5-4104-9bb5-3d2a663f6487" location="7 9" name="NextMachineRTL" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+#	shared.cells.flagevents(65,1,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Alarms/Alarm142",0)
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Status/Messages","Ready To Unload")
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/Start_cmd_s",0)
+	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/PartPresentatRecovery").value==1:
+		chart.MachineID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/ARRP/MachineID").value
+		chart.MachineName=system.db.runScalarPrepQuery("SELECT cellCode FROM cell WHERE ID=?",[chart.MachineID],"FMSLine")
+	chart.result=shared.AR.getPartIDStepID(chart.MachineName)
+	chart.partID=chart.result[0]
+	chart.stepID=chart.result[1]
+	chart.nextMachine=shared.AR.nextMachine(chart.partID,chart.stepID)
+	chart.nextMachineRTL=int(shared.AR.nextMachineRTL(chart.nextMachine))
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/NextMachineReady",chart.nextMachineRTL)
+	if chart.nextMachine&gt;=81 and chart.nextMachine&lt;90 and chart.nextMachineRTL==0:
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Command/SB1_cmd",2)
+	elif chart.nextMachine==4:
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Command/Recipe",shared.AR.nextRecipe(chart.partID,chart.stepID))
+	chart.machineID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+chart.MachineName+"/MachineID").value
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/w_Robot_Finish_s",0)
+	chart.jigReady=chart.nextMachineRTL
+	</start-script>
+	</step>
+	<step id="f31aa4e5-550e-48cf-b9f5-9d21533815d8" location="9 8" name="Alarm142" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Messages","Pick Done without PartID")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Alarms/Alarm142",1)</start-script>
+	</step>
+	<step id="6bc66186-0f2e-413a-b84a-7639545eee0d" location="5 12" name="GoingtoNextMachine1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	if chart.MachineID&gt;=5:
+		chart.MachineID=1
+	else:
+		chart.MachineID=chart.MachineID+1</start-script>
+	</step>
+	<step id="cab7d95d-4207-4c01-8480-25414135c583" location="12 7" name="CheckNextMachineRTL" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+#	chart.partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/PartID").value
+#	chart.stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/StepID").value
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Alarms/Alarm142",0)
+	chart.partID=shared.AR.checkGripperforPartID()
+	chart.stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/StepID").value
+	chart.nextMachine=shared.AR.nextMachine(chart.partID,chart.stepID)
+	chart.nextMachineRTL=int(shared.AR.nextMachineRTL(chart.nextMachine))
+	chart.machineID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+chart.MachineName+"/MachineID").value
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/w_Robot_Finish_s",0)
+	chart.jigReady=1</start-script>
+	<timer-script interval="1000">def onTimer(chart, step):
+	"""
+	This will run at a fixed interval while the
+	step is active.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/PartID").value
+#	chart.stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/StepID").value
+	chart.partID=shared.AR.checkGripperforPartID()
+	chart.stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/StepID").value
+	chart.nextMachine=shared.AR.nextMachine(chart.partID,chart.stepID)
+	chart.nextMachineRTL=int(shared.AR.nextMachineRTL(chart.nextMachine))
+	chart.machineID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+chart.MachineName+"/MachineID").value
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/w_Robot_Finish_s",0)
+	chart.jigReady=1</timer-script>
+	</step>
+	<step id="fb7c84a1-23ac-46d5-a402-453e3fcd4cc2" location="7 13" name="ARPick" factory-id="enclosing-step" chart-path="ARPickv1" execution-mode="RunUntilCompletion">
+<parameters>
+	<parameter><name>PartID</name><expression>{partID}</expression></parameter>
+	<parameter><name>StepID</name><expression>{stepID}</expression></parameter>
+	<parameter><name>MachineID</name><expression>{machineID}</expression></parameter>
+	<parameter><name>Operation</name><expression>1</expression></parameter>
+	<parameter><name>JigReady</name><expression>{jigReady}</expression></parameter>
+</parameters>
+
+<return-parameters>
+	<return-parameter><enclosed-name>RobotFinish</enclosed-name><local-name>RobotDone</local-name></return-parameter>
+</return-parameters>
+	</step>
+	<step id="f91b44ed-ad5a-40e8-92c7-2421a1d65ccf" location="12 10" name="ARPlace" factory-id="enclosing-step" chart-path="ARPlacev1" execution-mode="RunUntilCompletion">
+<parameters>
+	<parameter><name>MachineID</name><expression>{machineID}
+</expression></parameter>
+	<parameter><name>Operation</name><expression>2</expression></parameter>
+	<parameter><name>JigReady</name><expression>{jigReady}</expression></parameter>
+</parameters>
+
+<return-parameters>
+	<return-parameter><enclosed-name>RobotFinish</enclosed-name><local-name>RobotDone</local-name></return-parameter>
+</return-parameters>
+	</step>
+	<step id="b73f90d6-a894-449e-9a74-cbdd9828a216" location="12 13" name="Delay" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	sleep(3)</start-script>
+	</step>
+	<transition id="e859e13a-55a7-4b44-bbfb-cafcd0012037" location="2 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/PickDone}=1 &amp;&amp;//
+(({[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/G1Vacuum}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/G1PartPresent}=0) || //
+({[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/G2Vacuum}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/G2PartPresent}=0))</transition>
+	<transition id="116f7212-ee73-464e-bb3e-5714e4799d6f" location="7 3">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/w_Robot_Finish}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/EStop_Sts}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/InAlarm_Sts}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Running}=1</transition>
+	<transition id="056eb7c5-2d37-48f1-859e-5b0cb70819f6" location="5 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/PickDone}=0 &amp;&amp; (runScript("shared.AR.checkStatus",1000,{MachineID})=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/PartPresentatRecovery}=0)
+</transition>
+	<transition id="779ac0a5-6473-4eec-9d39-637d33ab299d" location="7 7">(runScript("shared.AR.checkStatus",1000,{MachineID})=1 || 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/PartPresentatRecovery}=1) &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/PickDone}=0 
+// &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/NextMachineReady}=1</transition>
+	<transition id="6c973688-20b9-4862-a5c0-467d5f7d846f" location="9 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/PickDone}=1 &amp;&amp; ({[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Production/Gripper1PartID}="" &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Production/Gripper2PartID}="")</transition>
+	<transition id="fcec7d2b-3ddc-4be0-9be9-333f6aa3ef63" location="5 11">{nextMachineRTL}!=1</transition>
+	<transition id="9edfe711-02da-4bbb-bede-b851382b4fa8" location="7 11">{nextMachineRTL}=1 &amp;&amp; {jigReady}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/TaskRequest}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Running}=1</transition>
+	<transition id="160ecb79-3ee3-48d1-9ddd-159eb60f2711" location="12 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/PickDone}=1
+// &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/NextMachineReady}=1</transition>
+	<transition id="a127c2b0-7006-492e-a8d2-d6fca4411dd0" location="12 9">{jigReady}=1 &amp;&amp; {nextMachineRTL}=1 </transition>
+	<transition id="2825f50d-b25f-4192-ae9e-bc5f3b175821" location="7 15">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/w_Robot_Finish}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Running}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=0 </transition>
+	<transition id="f8813d4e-0276-4820-8fc7-e827c82eba3f" location="12 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/w_Robot_Finish}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Running}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=0 </transition>
+	<jump id="6f181ea9-7f84-40ff-8f66-bf9f5778103b" location="2 9">A</jump>
+	<jump id="0de092a0-4935-4c3d-93a2-26b8dbe30706" location="5 9">A</jump>
+	<jump id="c6c83b36-bcc3-4ba5-a4cf-3adb39f540f1" location="9 9">A</jump>
+	<jump id="67ff1ca8-2793-4c67-b164-ac28c1a4c074" location="5 13">A</jump>
+	<jump id="f61fee1b-8261-4ec3-86d8-8eec4cc07474" location="7 16">A</jump>
+	<jump id="f25e375a-f9ec-4159-afe8-2b4f85c2061d" location="12 14">A</jump>
+	<anchor id="3181679a-355e-4650-9e14-1b82fbbfbf00" location="5 1">A</anchor>
+	<note id="cb064a8d-789b-4cac-87b2-bf622ef42409" location="5 4">AR Pick and
+Place with IML</note>
+	<link id="1cd5e8d2-5647-4a38-9b34-a5784e76c109" location="5 2"><up/><down/><right/></link>
+	<link id="47ff3070-df1f-4db2-b5b9-3f31086a1f40" location="6 2"><left/><right/></link>
+	<link id="d887babb-0285-4e32-9ee8-a71931b4ec30" location="2 6"><left/><down/><right/></link>
+	<link id="6d001e53-fa27-4887-83ce-7cbd744c8231" location="3 6"><left/><right/></link>
+	<link id="1ac46f71-03c2-442c-b705-cc9ff30774ba" location="4 6"><left/><right/></link>
+	<link id="9ccfcafb-29ee-4f5e-9dbe-722e87a18d91" location="7 2"><up/><left/><down/></link>
+	<link id="d9c36cc6-2674-4cd3-ae42-a1cf683bee1d" location="5 6"><left/><down/><right/></link>
+	<link id="cc2f37b0-1d02-4aa9-a5ea-0f30c8d9f9ba" location="6 6"><left/><right/></link>
+	<link id="78ffb17a-fc19-47fa-93d6-5fb4a2b9da53" location="7 5"><up/><down/><right/></link>
+	<link id="b4edad07-4180-4095-b8e2-e9bdd20a17ba" location="7 6"><up/><left/><down/></link>
+	<link id="4e3a50c7-a1d9-4f5e-ac39-3875b189a61b" location="8 5"><up/><left/><right/></link>
+	<link id="a8bd3b30-8793-43ec-9dd9-f0636c955b44" location="9 5"><left/><down/><right/></link>
+	<link id="af50a475-6148-4c2b-899a-1479afdf8789" location="7 8"><up/><down/></link>
+	<link id="93a770c9-c3fe-4ca3-aeb4-45b3c2acd861" location="9 6"><up/><down/></link>
+	<link id="5a0814ba-7972-4a22-b504-fb6aae3237c0" location="10 5"><left/><right/></link>
+	<link id="e6e58784-2eed-4553-ad89-875a0a2c6870" location="5 10"><left/><down/><right/></link>
+	<link id="5cc721d4-e85a-454b-9557-fbe933fa8979" location="6 10"><left/><right/></link>
+	<link id="02048200-d301-4fba-88cc-8690ab37de8f" location="11 5"><left/><right/></link>
+	<link id="25cb9400-95b3-4fa4-b50d-d86d7bdfecaa" location="7 10"><up/><left/><down/></link>
+	<link id="7d0b74be-2500-40ae-a6af-8e29ba810f1f" location="12 5"><left/><down/><right/></link>
+	<link id="abecafa2-3412-4ec7-89d9-9cffaaf738c2" location="7 12"><up/><down/></link>
+	<link id="48cdfb10-c00e-4f73-a976-1d1f19662ea1" location="12 8"><up/><left/><down/></link>
+	<link id="20879000-eeb5-4e15-bd79-f72476559a00" location="7 14"><up/><left/><down/></link>
+	<link id="03100cff-9a87-492f-82da-190db52c19dc" location="12 11"><up/><down/></link>
+
+</sfc>

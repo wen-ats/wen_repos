@@ -1,0 +1,214 @@
+<?xml version="1.0" ?>
+<sfc zoom="0.8499999" canvas="20 23" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Thu Oct 10 11:15:48 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="77484ad8-d6b9-4f5b-bbc7-abbbe49f27b1" location="5 1" name="__begin" factory-id="begin-step">	</step>
+	<step id="28250b7e-0ab5-427b-a1bf-458202a6b014" location="5 3" name="EnableForLockSequence" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/SeqMessage","Machine to Unlock")</start-script>
+	</step>
+	<step id="08839373-ae5c-49e2-a545-af31b91a9f9f" location="5 6" name="InitiateCycleStop0" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/CycleStop_cmd",1)</start-script>
+	</step>
+	<step id="a993d156-6934-498d-8ff9-d9dcdc104577" location="11 8" name="DoorStatus" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/SafetyAlarm",2)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/RearDoorUnlock",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/FrontDoorUnlock",0)
+	sleep(1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/EnableDoorOpen",0)</start-script>
+	</step>
+	<step id="621f68e6-d2df-406d-8f82-79791b27bfd0" location="10 11" name="CRRemoteMode" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/SeqMessage","CR Not In Remote Mode")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/SafetyAlarm",4)</start-script>
+	</step>
+	<step id="53b42203-e743-40c4-b3e4-4c1727c40262" location="11 10" name="DoorStatusClosed" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/SafetyAlarm",0)
+</start-script>
+	</step>
+	<step id="3bbd3157-e8f8-4cbe-9382-dea8573ebd97" location="13 8" name="InitiateCycleStop1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/CycleStop_cmd",0)</start-script>
+	</step>
+	<step id="e6226152-4f8b-4eb7-be54-0cc6f6d0bd86" location="9 13" name="ARLocalMode" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/SeqMessage","AR in Local Mode")</start-script>
+	</step>
+	<step id="552c73ba-8586-4e50-a4c4-1ca5244e2e5c" location="13 11" name="MaintenanceKeyInPos" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/SeqMessage","Maintenance Key in Locker")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/RearDoorUnlock",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/FrontDoorUnlock",0)
+	sleep(1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/EnableDoorOpen",0)
+	</start-script>
+	</step>
+	<step id="0d74d851-35a0-4c2a-920d-16a8e7599b46" location="5 17" name="EnableDoorOpen" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/EnableDoorOpen",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/SeqMessage","Safety Inhibit Door Open Enabled")</start-script>
+	</step>
+	<transition id="164e2b02-d67d-476b-aea7-a53d23a62a61" location="5 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/MaintKeyPresent}=0</transition>
+	<transition id="170c92d1-ed4a-4cc1-a7a3-e7bea87e4d62" location="4 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/MaintKeyPresent}=1</transition>
+	<transition id="1cdd3b3f-f3ee-4167-baa7-f340989232a4" location="5 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/CycleStop_cmd}=1</transition>
+	<transition id="d908119a-c997-426e-971b-138e7217aa8c" location="5 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/CR/Status/MachineMode}=1</transition>
+	<transition id="fee76c48-9e9e-4e7e-8b61-162afc48d6ad" location="11 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/MaintKeyPresent}=1</transition>
+	<transition id="359e6abb-be7b-4b15-aaa0-08f8442edbc3" location="5 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/MachineMode}=1</transition>
+	<transition id="defe4b13-b089-4212-ad4e-853fe7887125" location="11 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DX_AR_DOOR1OPEN}=1 || 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DX_AR_DOOR2OPEN}=1 || 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DY_CR_DOOR1}=1 || 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DY_CR_DOOR2}=1</transition>
+	<transition id="b75bb0b1-f540-41f8-8794-392b8e442a74" location="10 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/CR/Status/MachineMode}=0</transition>
+	<transition id="13fffb55-7544-467a-8d8a-beaeb0bd793a" location="11 9">{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DX_AR_DOOR1OPEN}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DX_AR_DOOR2OPEN}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DY_CR_DOOR1}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DY_CR_DOOR2}=0</transition>
+	<transition id="6ef3edd9-1b67-482b-a32e-a42142392385" location="3 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=0 &amp;&amp;
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/w_Robot_Finish}=1 &amp;&amp;
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/CycleStop_cmd}=1</transition>
+	<transition id="39a0a82c-9803-496a-a638-e1009c3d8865" location="4 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Alarm} &gt; 0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=0</transition>
+	<transition id="0937664a-d70b-467f-82ce-bc6929e06ca1" location="13 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DX_AR_DOOR1OPEN}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DX_AR_DOOR2OPEN}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DY_CR_DOOR1}=0 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/DY_CR_DOOR2}=0</transition>
+	<transition id="f3bcfed6-1111-4e57-b605-704e432a0115" location="5 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/TaskRequest}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=0</transition>
+	<transition id="954ecfe7-0aa0-4372-aae5-2bf0e2f5cd79" location="9 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/MachineMode}=0</transition>
+	<transition id="c74c4ec3-2d59-4e07-a8ec-070fb05d4b61" location="6 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Motor_Sts}=0</transition>
+	<transition id="4f20c171-493b-41bf-9572-03a62e8361a4" location="7 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/MaintKeyPresent}=1</transition>
+	<transition id="ddafd4d0-735b-4578-b5e0-2efb8507905f" location="13 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/CycleStop_cmd}=0</transition>
+	<transition id="3e14f168-b52a-4aad-99a4-14bdaef30335" location="14 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/MachineSafety/MaintKeyPresent}=0</transition>
+	<jump id="23ffad57-9901-4c10-84a2-48208846eafa" location="4 9">C</jump>
+	<jump id="3560880d-25bb-4b67-9689-35cbfc242133" location="11 11">C</jump>
+	<jump id="587fe503-0f93-41a7-bda5-1c81d045819d" location="10 12">C</jump>
+	<jump id="56edb86e-a1ca-4597-a936-1adae4276325" location="7 15">C</jump>
+	<jump id="8a8f3843-e4a9-4238-9293-21fc788d7435" location="9 14">A</jump>
+	<jump id="163c3907-07a7-4469-9c59-19fbd4e0130e" location="14 11">C</jump>
+	<jump id="28f47710-aeda-48ae-938b-4ed7b57e9aa6" location="13 13">C</jump>
+	<jump id="616dc08f-a2b1-4286-95cf-72001eaa1fd2" location="5 19">C</jump>
+	<anchor id="50d5e819-a32b-4dc3-9604-a4058af59d98" location="4 1">C</anchor>
+	<anchor id="cb7dc413-6b18-4e27-a90a-4523f9ad6d2d" location="2 15">A</anchor>
+	<note id="fdcda952-5300-4c3f-93b3-8bcdd92155bb" location="3 5" size="2 1">If Maintenance Key removed, 
+cycle stop will be triggered.
+</note>
+	<link id="a231f32a-8b18-44cb-8adb-1c9eab8c1415" location="4 2"><up/><left/><right/></link>
+	<link id="b3df1737-1cc1-40c8-acd0-fe3281400f77" location="5 2"><up/><left/><down/></link>
+	<link id="376099bf-c388-4934-ac46-8effda9dd056" location="5 4"><up/><left/><down/><right/></link>
+	<link id="90a34d58-7b0d-4dbf-9b89-d1d05c976c7f" location="6 4"><left/><right/></link>
+	<link id="1f19a59e-eb1d-4be0-a8cb-d700bb4c92da" location="7 4"><left/><right/></link>
+	<link id="e021681c-e800-4891-ba57-6fc90551aa82" location="4 7"><up/><down/><right/></link>
+	<link id="b5fd1c52-e263-4580-8f0d-6e0e28b06610" location="5 7"><up/><left/><down/></link>
+	<link id="ca4cd723-ef9d-48ae-8a94-d70542af6168" location="8 4"><left/><right/></link>
+	<link id="4be0ce3b-bd6e-4b7b-850d-407983795f18" location="9 4"><left/><right/></link>
+	<link id="650894ba-b267-41ca-afb8-edbc43d9acc2" location="5 9"><up/><down/><right/></link>
+	<link id="68dca825-f5a7-4cb2-a0ab-cf8cbca61c9f" location="10 4"><left/><down/><right/></link>
+	<link id="ec144df2-ccf9-40e7-ac07-1cf94a239fe9" location="6 9"><left/><right/></link>
+	<link id="5062eb97-c06f-4d0c-8ae8-74bafc07fdc7" location="7 9"><left/><right/></link>
+	<link id="62dada1f-f64c-4d1d-93dc-df68f14bce3c" location="11 4"><left/><down/><right/></link>
+	<link id="22a0c9d0-f970-47cc-9122-2e9cc12b77cc" location="8 9"><left/><right/></link>
+	<link id="1d5dedaf-e3bb-409d-a0de-a44c86405c83" location="5 11"><up/><down/><right/></link>
+	<link id="970486d2-3ae5-4f3f-bacb-945208943dc8" location="6 11"><left/><right/></link>
+	<link id="d7571e5d-a559-48cc-bb89-1be608011364" location="11 6"><up/><down/><right/></link>
+	<link id="bf58554d-aa83-46d1-81b8-b15180808e5b" location="9 9"><left/><right/></link>
+	<link id="c1b28c06-e348-4e0f-ba58-d51c26d89aa0" location="7 11"><left/><right/></link>
+	<link id="f6d22192-1238-45d7-918e-93507aa5c53c" location="3 13"><up/><down/><right/></link>
+	<link id="5eea478e-e9cf-4df8-9fe7-f01df1c71e94" location="12 6"><left/><right/></link>
+	<link id="d4aef7cf-a2ce-410f-8b0e-4d5a24618ad1" location="10 9"><left/><down/><right/></link>
+	<link id="cd9777c7-57ac-4863-a34c-2f1dbe084241" location="4 13"><up/><left/><down/><right/></link>
+	<link id="7caedc6b-90fc-4e39-896f-2821d922a93a" location="8 11"><left/><right/></link>
+	<link id="649d1a10-507a-4353-8885-53c842c30ea6" location="5 13"><up/><left/><down/><right/></link>
+	<link id="9ed9144e-f5d3-496e-91cc-12ef0d32805c" location="9 11"><left/><down/><right/></link>
+	<link id="21e899ca-9e12-42a6-9f8f-df5b00913fb2" location="6 13"><left/><down/><right/></link>
+	<link id="6fa49880-cbdf-4966-87d3-37b267038153" location="13 6"><left/><down/><right/></link>
+	<link id="28b68e8d-918f-4cfb-b9ad-51b73e109f85" location="7 13"><left/><down/><right/></link>
+	<link id="e168d4fb-7d00-497a-a273-eeb5805c6341" location="3 15"><up/><down/><right/></link>
+	<link id="cb6ef94c-d898-4a9c-9d5e-367128c23447" location="4 15"><up/><left/><down/><right/></link>
+	<link id="f8211d3f-d553-44c8-bf5c-450ea569b57a" location="13 9"><up/><down/><right/></link>
+	<link id="cf866c22-8260-47a7-a4d1-8fe781a957ad" location="5 15"><up/><left/><down/><right/></link>
+	<link id="99e66b20-1bc0-47bb-bd67-a8d9641c8249" location="2 16"><up/><left/><right/></link>
+	<link id="128d9389-33f3-459f-b770-73d7f9349890" location="6 15"><up/><left/><down/></link>
+	<link id="d5e85d16-83cb-4d22-a291-df51e5710afb" location="3 16"><left/><right/></link>
+	<link id="d378734b-f494-4ee0-9317-6a8182a76926" location="4 16"><left/><right/></link>
+	<link id="202672aa-3b1b-4dae-ad64-8341f70749c4" location="14 9"><left/><down/><right/></link>
+	<link id="67b12ba9-5de9-4847-887a-892076f588b3" location="5 16"><up/><left/><down/></link>
+	<link id="820e2b89-41c6-49d1-8d72-11dd32fc24c4" location="13 12"><up/><down/><right/></link>
+	<link id="7e684d6f-b15e-4a41-874c-3bc067195978" location="5 18"><up/><down/></link>
+
+</sfc>

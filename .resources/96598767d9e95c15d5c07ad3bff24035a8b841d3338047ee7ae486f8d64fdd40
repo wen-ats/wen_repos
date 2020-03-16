@@ -1,0 +1,67 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.0" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Wed Apr 03 09:09:29 SGT 2019" hot-editable="false" persist-state="false" redundant-sync="false">
+	<step id="152b9440-e333-49d8-bfd5-b601a1fe83b1" location="5 1" name="__begin" factory-id="begin-step">	</step>
+	<step id="318b76b5-b9e4-4871-9beb-e99830d9f78c" location="5 3" name="S1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.count = 0
+	system.tag.write('[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/w_Robot_Finish', 0)</start-script>
+	<timer-script interval="1000">def onTimer(chart, step):
+	"""
+	This will run at a fixed interval while the
+	step is active.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.count +=1</timer-script>
+	</step>
+	<step id="5ec12219-9d13-4953-adfc-e8002b3c94f1" location="5 8" name="S2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write('[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/w_Robot_Finish', 1)
+#	system.tag.write('[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/w_Default_WO', 1)
+	</start-script>
+	</step>
+	<step id="067c436d-27ac-4586-84ed-45dfc9090da5" location="6 8" name="S3" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write('[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/w_Robot_Finish', 1)
+	system.tag.write('[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/TestUnload', 0)
+	</start-script>
+	</step>
+	<step id="74c18338-e7c4-40c7-9159-390dd6fe9d0f" location="5 9" name="__end1" factory-id="end-step">	</step>
+	<step id="69d753ba-3db8-4d25-9afb-e49b4f1a3095" location="6 9" name="__end1" factory-id="end-step">	</step>
+	<transition id="1af2a50e-64bc-4d34-9752-8726a322dc76" location="5 6">{count} &gt; 5 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/X113_Curtain_Sensor} = True &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/X013_Part_Present} = True &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/r_Rdy_for_Load} = True</transition>
+	<transition id="e4b7ce9a-7ae2-4650-ac1d-0f23e153ef3a" location="6 6">{count} &gt; 60 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/X113_Curtain_Sensor} = True &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/X013_Part_Present} = True &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/OPC/LaserCut/SCADA_Control/r_Rdy_for_Unload} = True &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/TestUnload} = True </transition>
+	<link id="e312b84f-a6fd-47c4-8d82-d7fc5e31b12a" location="5 2"><up/><down/></link>
+	<link id="0a40fdf4-cfd0-4308-92de-37f87d3058e1" location="5 4"><up/><down/><right/></link>
+	<link id="d018efe1-1f0a-4463-952c-93f07d614688" location="5 5"><up/><down/></link>
+	<link id="6464a538-65ab-4689-acad-56026670380a" location="6 4"><left/><down/><right/></link>
+	<link id="a5788c14-e74b-4dd6-8e28-a78abe854f97" location="6 5"><up/><down/></link>
+	<link id="1c8d66ca-8bd2-427d-b4e6-5bb706504442" location="5 7"><up/><down/></link>
+	<link id="f7b388d0-85a7-4bf0-9cbf-455bd3e62ff5" location="6 7"><up/><down/></link>
+
+</sfc>

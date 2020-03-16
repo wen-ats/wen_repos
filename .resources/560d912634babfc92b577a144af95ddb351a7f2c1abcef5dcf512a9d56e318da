@@ -1,0 +1,79 @@
+{
+  "pages": {
+    "/machineoverview": {
+      "viewPath": "MachineOverview",
+      "docks": {
+        "left": [
+          {
+            "viewPath": "Menu",
+            "id": "DockedMenu",
+            "viewParams": {},
+            "size": 150,
+            "resizable": false,
+            "iconUrl": "",
+            "modal": false,
+            "show": "onDemand",
+            "anchor": "fixed",
+            "content": "push",
+            "autoBreakpoint": 480,
+            "handle": "hide"
+          }
+        ],
+        "top": [
+          {
+            "viewPath": "Header",
+            "id": "",
+            "viewParams": {},
+            "size": 150,
+            "resizable": false,
+            "iconUrl": "",
+            "modal": false,
+            "show": "visible",
+            "anchor": "fixed",
+            "content": "push",
+            "autoBreakpoint": 480,
+            "handle": "hide"
+          }
+        ]
+      }
+    },
+    "/": {
+      "viewPath": "Overview",
+      "docks": {
+        "left": [
+          {
+            "viewPath": "Menu",
+            "id": "DockedMenu",
+            "viewParams": {},
+            "size": 150,
+            "resizable": false,
+            "iconUrl": "",
+            "modal": false,
+            "show": "onDemand",
+            "anchor": "fixed",
+            "content": "cover",
+            "autoBreakpoint": 480,
+            "handle": "hide"
+          }
+        ],
+        "top": [
+          {
+            "viewPath": "Header",
+            "id": "",
+            "viewParams": {},
+            "size": 110,
+            "resizable": false,
+            "iconUrl": "",
+            "modal": false,
+            "show": "visible",
+            "anchor": "fixed",
+            "content": "push",
+            "autoBreakpoint": 480,
+            "handle": "hide"
+          }
+        ]
+      }
+    }
+  },
+  "sharedDocks": {}
+}

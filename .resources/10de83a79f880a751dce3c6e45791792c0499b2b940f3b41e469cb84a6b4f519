@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.0" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Thu Sep 26 19:00:47 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="626ae64f-53a2-43e1-a99e-854c21a22b01" location="5 1" name="__begin" factory-id="begin-step">
+<parameters>
+	<parameter><name>TrackID</name><expression>0</expression></parameter>
+</parameters>
+	</step>
+	<step id="947dbf7e-427a-4d53-a89c-656f125e2faf" location="5 6" name="StartDowntime" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.TrackID=shared.MES.startLineDT()
+	
+	</start-script>
+	</step>
+	<step id="8fc90cda-2bba-4bdf-abe0-6a4886e060ce" location="7 6" name="EndDowntime" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LineAvailability/NewWorkOrderCreated",0)
+	if chart.TrackID!=0:
+		shared.MES.endLineDT(chart.TrackID)
+		chart.TrackID=0
+	
+	</start-script>
+	</step>
+	<transition id="4de752fd-cb8c-4147-8c6f-6945247dd707" location="5 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LineAvailability/NewWorkOrderCreated}=0 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Production/MachineStatus}!=4 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Production/MachineStatus}!=5 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Production/MachineStatus}!=4 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Production/MachineStatus}!=5 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/CNC/Production/MachineStatus}!=4 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/CNC/Production/MachineStatus}!=5 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Production/MachineStatus}!=4 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Production/MachineStatus}!=5 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Production/MachineStatus}!=4 &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Production/MachineStatus}!=5 &amp;&amp;//
+{TrackID}=0 &amp;&amp; //
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LineAvailability/LineAvailable}=1</transition>
+	<transition id="c647775d-5682-4419-8eee-d8eee4234aea" location="7 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LineAvailability/NewWorkOrderCreated}=1 ||//
+({[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Production/MachineStatus}=4 ||//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Production/MachineStatus}=5 ||//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/CNC/Production/MachineStatus}=4 ||//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/CNC/Production/MachineStatus}=5 ||//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Production/MachineStatus}=4 ||//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Production/MachineStatus}=5 ||//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Production/MachineStatus}=4 ||//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Production/MachineStatus}=5) &amp;&amp;//
+{TrackID}!=0 ||//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LineAvailability/LineAvailable}=0</transition>
+	<jump id="3febeabe-4ce0-4514-b149-f645a2520189" location="5 7">A</jump>
+	<jump id="17e223b1-0dba-40fb-8320-c9f1787dbfaf" location="7 7">A</jump>
+	<anchor id="87d92e7e-b741-4da5-a9e9-15019eed35c6" location="4 1">A</anchor>
+	<link id="9fc0dc82-1e6d-4ba2-9aeb-e72b230edba8" location="4 2"><up/><down/><right/></link>
+	<link id="0d719894-55ee-47bf-ac17-146f224486b5" location="5 2"><up/><left/><down/></link>
+	<link id="f8e6ea6f-29dd-49f1-a46c-189e169e645f" location="5 3"><up/><down/></link>
+	<link id="a93113fc-8883-4b6e-b263-9a497af1f519" location="5 4"><up/><down/><right/></link>
+	<link id="15a60a1b-b1b3-40bd-b970-94c356ce4b80" location="6 4"><left/><right/></link>
+	<link id="ab9ab83f-163b-493d-93b8-cfee87deceb7" location="7 4"><left/><down/><right/></link>
+
+</sfc>

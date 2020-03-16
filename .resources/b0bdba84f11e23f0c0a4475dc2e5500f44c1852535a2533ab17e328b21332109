@@ -1,0 +1,21 @@
+def SB3ToASRSCheckIn(partName,rackNumber):
+	cellID=system.db.runScalarPrepQuery("SELECT machineid FROM partid_fms WHERE partid=?",[partName],'FMSLine')
+	system.db.runPrepUpdate("UPDATE partid_fms SET partid='0' WHERE machineid=?",[cellID],"FMSLine")
+	machineid=1800+rackNumber
+	system.db.runPrepUpdate("UPDATE partid_fms SET partid=?, timestamp=CURRENT_TIMESTAMP WHERE machineid=?",[partName,machineid],"FMSLine")
+	partid=system.db.runScalarPrepQuery("SELECT id FROM master_parts WHERE partname=?",[partName],"FMSLine")
+	system.db.runPrepUpdate("UPDATE parts_tracking SET endtime=CURRENT_TIMESTAMP WHERE partid=? and cellid=?",[partid,cellID],"FMSLine")
+	partComplete=system.db.runPrepUpdate("UPDATE master_parts SET processed=2 WHERE id=?",[partid],"FMSLine")
+	if partComplete==1:
+		workOrderName=partName[0:16]
+		ActiveCompleteQtt=system.db.runPrepQuery("SELECT QuantityActive, QuantityCompleted FROM workorder_fms WHERE workordername=?",[workOrderName],"FMSLine")
+		updatedActiveQtt=ActiveCompleteQtt[0][0]-1
+		updatedCompleteQtt=ActiveCompleteQtt[0][1]+1
+		workOrderStatus=system.db.runPrepUpdate("UPDATE workorder_fms SET QuantityActive=?, QuantityCompleted=? WHERE workordername=?",[updatedActiveQtt,updatedCompleteQtt,workOrderName],"FMSLine")
+		if workOrderStatus==1:
+			orderQttCheck=system.db.runPrepQuery("SELECT QuantityActive, QuantityCompleted, Quantity FROM workorder_fms WHERE workordername=?",[workOrderName],"FMSLine")
+			activeQtt=orderQttCheck[0][0]
+			completeQtt=orderQttCheck[0][1]
+			orderQtt=orderQttCheck[0][2]
+			if orderQtt>=completeQtt and activeQtt==0:
+				system.db.runPrepUpdate("UPDATE workorder_fms SET status=2,woendtime=CURRENT_TIMESTAMP WHERE workordername=?",[workOrderName],"FMSLine")

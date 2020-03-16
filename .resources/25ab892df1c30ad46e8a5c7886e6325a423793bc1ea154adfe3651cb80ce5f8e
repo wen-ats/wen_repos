@@ -1,0 +1,621 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.05" canvas="23 23" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Wed Apr 03 09:09:27 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<onstart>def onStart(chart):
+	"""
+	This will run once when the chart is started.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+	"""
+	from time import sleep
+	chart.datetime=system.tag.read("[System]Gateway/CurrentDateTime").value
+	chart.strDate=system.db.dateFormat(chart.datetime,"yyyy-MM-dd HH:mm:ss")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/SCADA_Time_dt",chart.strDate)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Time_Synchro",1)
+	sleep(1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Time_Synchro",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Initial",0)	
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Reset",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Start",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Robot_Finish",1)</onstart>
+	<onabort>def onAbort(chart):
+	"""
+	This will run once if the chart is aborted.
+	The exception that caused the abort is
+	available via chart.abortCause
+
+	Arguments:
+		chart: A reference to the chart's scope.
+	"""
+</onabort>
+	<step id="5fa3afc3-bbb3-4b35-b8ef-ae7fba4bfdc0" location="3 2" name="__begin" factory-id="begin-step">	</step>
+	<step id="95975c47-82fa-42b6-9705-6f52dac5a4cc" location="4 1" name="Reinitialize" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	estop=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage").value
+	error=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured").value
+	shared.cells.flagevents(1,2,0)
+	shared.cells.flagevents(2,2,estop)
+	shared.cells.flagevents(3,2,error)
+	
+	if estop==1:
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Emergency Stop")
+	elif error==1:
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Alarm/Error")
+	else:
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Unknown Circumstance")</start-script>
+	<timer-script interval="1000">def onTimer(chart, step):
+	"""
+	This will run at a fixed interval while the
+	step is active.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	estop=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage").value
+	error=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured").value
+	if estop==1:
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Emergency Stop")
+	elif error==1:
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Alarm Occured")
+	else:
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Unknown Circumstance")</timer-script>
+	</step>
+	<step id="85ab0622-6da1-41e0-a7ca-e71914b85315" location="3 4" name="ResetTags" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Initial",0)	
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Reset",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Start",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Robot_Finish",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Stop",0)</start-script>
+	</step>
+	<step id="bb974bfa-33a0-424a-b825-453c2ab7459c" location="1 7" name="LocalMode" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(1,2,1)	#1=Local Mode
+	message=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineStatus_str").value
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages",message)</start-script>
+		<stop-script>def onStop(chart, step):
+	"""
+	This will run when the step is finished and
+	all other actions complete.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(1,2,0) #0=No State
+#	message=system.tag.read("ITE/iFMS/ProductionArea/FMSLine/LaserCut/MachineStatus_str").value
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Exiting Local")</stop-script>
+	<timer-script interval="1000">def onTimer(chart, step):
+	"""
+	This will run at a fixed interval while the
+	step is active.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	message=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineStatus_str").value
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages",message)</timer-script>
+	</step>
+	<step id="6ad9c063-ba0e-4c94-ba6a-faa8d8879849" location="5 7" name="RemoteMode" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(1,2,2)	#2=Remote Mode
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Remote Mode")</start-script>
+	</step>
+	<step id="fd7a926a-bfba-4c64-97df-688835a0f34f" location="9 4" name="ReadytoLoad" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	value=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Start").value
+	shared.cells.flagevents(7,2,value)
+	value=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Load").value
+	shared.cells.flagevents(8,2,value)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Ready for AR Loading")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Robot_Finish",1)</start-script>
+	</step>
+	<step id="bade7111-5c7e-494c-b04d-05dcaf7155e3" location="5 10" name="ReadyToInit" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	value=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Initial").value
+	shared.cells.flagevents(4,2,value)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Ready To Initialize")</start-script>
+	<timer-script interval="1000">def onTimer(chart, step):
+	"""
+	This will run at a fixed interval while the
+	step is active.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+#	system.tag.write("ITE/iFMS/ProductionArea/FMSLine/LaserCut/w_Initial",1)</timer-script>
+	</step>
+	<step id="9a74d6f5-87c7-41e5-a6d8-81505296e057" location="9 7" name="Stopped" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(20,2,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Stopped")</start-script>
+	</step>
+	<step id="c92e9da1-79bf-47ca-b017-9dff5321f7dd" location="11 8" name="Running" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	value=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Run_Stage").value
+	shared.cells.flagevents(9,2,value)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Running")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Stop",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Start",0)</start-script>
+	</step>
+	<step id="3a44d457-567a-4701-92c5-bd34e8a7b055" location="5 13" name="Initializing" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	value=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Initial").value
+	shared.cells.flagevents(5,2,value)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Initializing")
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/w_Initial",0)</start-script>
+	</step>
+	<step id="c9e190b1-d058-4de8-a0f0-955c1b5a61a0" location="11 11" name="PartLoading" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+#	value=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCut/IO/X113_Curtain_Sensor").value
+	shared.cells.flagevents(10,2,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Part Loading")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Robot_Finish",0)</start-script>
+	</step>
+	<step id="07dcb6d5-fac5-4a21-954f-e3ba8cd89cb3" location="16 2" name="WOReadDone" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(15,2,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","WorkOrder Loaded")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_New_WO_Come",0)</start-script>
+	</step>
+	<step id="205bca29-aa7a-4cc8-a996-a0dbb617c604" location="12 11" name="LoadingPause" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Status/Messages","Loading Paused")</start-script>
+	</step>
+	<step id="722e884c-3f6b-492b-8d53-62f29879ab44" location="16 6" name="Execution" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(16,2,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Part in Production")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Stop",0)</start-script>
+	</step>
+	<step id="2a038f58-fe2e-4fd9-b6bb-c13d7e4c0964" location="11 14" name="PartPlaced" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(11,2,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Part Loaded")
+	</start-script>
+	</step>
+	<step id="a3c080e6-371e-4687-a0eb-68fcbfca96a1" location="11 15" name="Recipe" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+#	system.tag.write("ITE/iFMS/ProductionArea/FMSLine/LaserCut/w_Part_ID","")
+#	system.tag.write("ITE/iFMS/ProductionArea/FMSLine/LaserCut/w_Recipe","")
+	sleep(1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Waiting for Recipe")</start-script>
+	</step>
+	<step id="3c188496-b214-4ac7-8718-403d39827e0d" location="16 11" name="ReadytoUnload" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(17,2,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Ready To Unload")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Stop",0)
+	chart.partID=system.tag.read("[Sacda]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/PartID").value
+	chart.stepID=system.tag.read("[Sacda]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/StepID").value
+	chart.nextMachine=shared.AR.nextMachine(chart.partID,chart.stepID)
+	chart.nextMachineRTL=shared.AR.nextMachineRTL(chart.nextMachine)
+	chart.machineID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/MachineID").value
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Robot_Finish_s",0)</start-script>
+	<timer-script interval="1000">def onTimer(chart, step):
+	"""
+	This will run at a fixed interval while the
+	step is active.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.nextMachineRTL=shared.AR.nextMachineRTL(chart.nextMachine)</timer-script>
+	</step>
+	<step id="a186bf8a-b4ae-46ea-a153-976337ea9d30" location="5 19" name="ReadytoRun" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Initialize Done")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Initial",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Stop",0)
+	sleep(1)
+	value=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Run").value
+	shared.cells.flagevents(6,2,value)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Stop",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Ready To Run")
+#	sleep(1)
+#	system.tag.write("ITE/iFMS/ProductionArea/FMSLine/LaserCut/w_Start",1)</start-script>
+	</step>
+	<step id="7bb1f895-c791-40b9-9804-61d1403cba23" location="19 9" name="ExecutionPause" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Status/Messages","Execution Paused")</start-script>
+	</step>
+	<step id="d90b9737-15ac-4321-8795-fdfdeec25a5f" location="11 18" name="RecipeLoaded" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	shared.cells.flagevents(13,2,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/Messages","Recipe Loaded")
+	shared.cells.flagevents(12,2,1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_New_WO_Come",1)
+	shared.cells.flagevents(14,2,1)</start-script>
+	</step>
+	<step id="4f08c260-7b4f-46ea-b686-2fd8d6a7870f" location="16 14" name="ARUnload" factory-id="enclosing-step" chart-path="ARLoad_Unloadv1" execution-mode="RunUntilCompletion">
+<parameters>
+	<parameter><name>PartID</name><expression>{partID}</expression></parameter>
+	<parameter><name>StepID</name><expression>{stepID}</expression></parameter>
+	<parameter><name>MachineID</name><expression>{MachineID}</expression></parameter>
+	<parameter><name>Operation</name><expression>1</expression></parameter>
+</parameters>
+
+<return-parameters>
+	<return-parameter><enclosed-name>RobotFinish</enclosed-name><local-name>RobotDone</local-name></return-parameter>
+</return-parameters>
+	</step>
+	<step id="13effa83-8932-4da7-b4ce-a0bf0b89526b" location="17 14" name="UnloadingPause" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Status/Messages","Unloading Paused")</start-script>
+	</step>
+	<step id="9bd13ccb-02df-473b-9698-9820dfb801f6" location="16 19" name="RobotFinish" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+#	shared.cells.partDesc(chart.PartID,(chart.StepID+1))
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Robot_Finish_s",1)</start-script>
+	</step>
+	<transition id="cd1760cf-300e-4041-994b-7376cc0db3b7" location="4 2">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}!=1 &amp;&amp;{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}!=1</transition>
+	<transition id="24ed15ad-3d5c-4241-9e96-baf919d340f4" location="1 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}="Local"</transition>
+	<transition id="a53b6778-f58e-49cf-a0d4-cd914471201d" location="5 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}="Remote"</transition>
+	<transition id="d31fbaa8-6fac-4756-b27f-c8293fdbcc73" location="1 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Local"</transition>
+	<transition id="28cb9c2b-97e1-4acb-8149-8660ac67d297" location="4 9">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="2135f58c-baf8-4fae-b0ce-0ec1496c4a90" location="5 9">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Initial}=1</transition>
+	<transition id="05efa1df-ad9e-4655-9b03-1c2acb0d1334" location="9 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Stop}=1</transition>
+	<transition id="f455d180-94ca-48a0-8fcf-69d3adede39e" location="10 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="cdc4594a-2a0d-44f2-a2b6-5d6e4dfa9340" location="11 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Run_Stage}=1</transition>
+	<transition id="7e7d5407-6e71-4574-bf7f-17b43fea4506" location="4 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="cabcb8a0-f655-4760-8ece-27b752376fef" location="5 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Initial}=1</transition>
+	<transition id="b2bbb66e-b845-4437-a2e4-7256e7123fc9" location="10 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="2c383e52-7d56-4470-b4ba-184e2b0740c6" location="11 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/IOs/X113_Curtain_Sensor}=0</transition>
+	<transition id="617f8883-83cc-4fb0-aeb5-86112ef6d313" location="15 4">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="34bb5cbe-8179-4cd3-8f6b-b445a4cc2812" location="12 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Run}=1</transition>
+	<transition id="cb16fa17-076f-41ae-9bd2-6e68da74d361" location="5 15">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Run}=1</transition>
+	<transition id="e4ae3c8d-ac5e-40c3-b2f5-8de810d7c361" location="6 15">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1</transition>
+	<transition id="ac68f545-6b01-4629-bbab-2ac26f33c73e" location="10 13">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="a9bfca90-200c-456d-be0a-ff00915e6648" location="16 4">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/IOs/Y005_Slider_In}=1</transition>
+	<transition id="ba7b8dfa-e5b1-4f72-9522-3a4a4878e049" location="12 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Start}=1</transition>
+	<transition id="75f3c04e-5c17-4c6b-91a2-40af2f5cf123" location="15 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="4efb00e8-396b-4a5c-828b-351cbd26cbc3" location="11 13">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/IOs/X113_Curtain_Sensor}=1</transition>
+	<transition id="99f6a22e-8ce6-4ce9-b137-01001d5fa41a" location="16 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Unload}=1</transition>
+	<transition id="2e3b70a2-c887-4fb8-b9c5-683853068d4a" location="10 17">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="79c3c85f-42a6-4510-bec3-cc4da62ac5de" location="15 13">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="49b64ee4-28fb-4e14-8ac2-13819bbbdf0f" location="11 17">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Robot_Finish}=1</transition>
+	<transition id="286a49e3-88be-4da4-887c-61cb91173bfd" location="16 13">{nextMachineRTL}=1</transition>
+	<transition id="80cf396d-19cb-47e3-8fc9-715c2689c69d" location="19 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Run}=1</transition>
+	<transition id="fa47121c-b964-4f65-9232-a7aec19df87d" location="2 21">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="0985747f-da25-4218-a85b-b552cc5eb4a8" location="3 21">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="263f3ab9-6f2a-4bde-8645-1ae8c8dcb20f" location="4 21">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="0fac8d31-6b18-4600-8008-e95d9e9e7ee4" location="17 13">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Run}=1</transition>
+	<transition id="d68f3adb-8199-487b-904e-c4ee1a26e80c" location="19 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Start}=1</transition>
+	<transition id="3931b598-944a-4ffa-a79d-a35567b22b85" location="5 21">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Start}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Load}=1</transition>
+	<transition id="8796296b-9880-4700-a40c-11ee29077f72" location="15 16">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="f7dec431-7067-4bf5-bbbe-b2f63d1ade5a" location="10 20">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="1d77ad84-d20f-47cc-82c0-08f03df4c4da" location="16 16">{RobotDone}=1</transition>
+	<transition id="e4424525-55a9-4db4-a430-6779bacf6ffd" location="17 15">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Start}=1</transition>
+	<transition id="abb3f08c-7373-465c-911b-93557dc6537e" location="11 20">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_WO_Read_Done}=1</transition>
+	<transition id="ef4c1dee-d756-4216-adb0-9194e2c7cbac" location="15 21">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/MachineMode}!="Remote" || {[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Error_Occured}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Estop_Stage}=1 </transition>
+	<transition id="0976e176-6e10-4692-98dd-1bbd95a986cb" location="16 21">{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Robot_Finish}=1</transition>
+	<jump id="d0929127-6770-4734-a5d6-6760cf5c2182" location="4 10">C</jump>
+	<jump id="f560da70-b247-4fd6-8b40-cd24786bb7ee" location="9 8">B</jump>
+	<jump id="65b8b8a0-d528-400a-8bc7-0f28212b0a6d" location="10 7">C</jump>
+	<jump id="7fce2677-a8e5-4990-b74c-82fc65bdaecb" location="4 13">C</jump>
+	<jump id="e430537a-ca62-4c33-b33b-88e68985263c" location="10 11">C</jump>
+	<jump id="f9b6c19a-7521-4109-afe8-8ef276a339c8" location="15 5">C</jump>
+	<jump id="8c1daf50-aa8f-4da9-9984-4c5b3671e672" location="6 16">C</jump>
+	<jump id="5e2bc393-313e-4092-8a9e-1e1dfcf3e440" location="10 14">C</jump>
+	<jump id="fb9da85b-3cc4-4e59-a4d5-7aec542e0952" location="15 9">C</jump>
+	<jump id="efe00dc8-9b3e-4019-8fb2-fbe661b6f4ad" location="12 13">F</jump>
+	<jump id="c7305255-24e3-4583-be16-7dc7e0e6a300" location="15 14">C</jump>
+	<jump id="c4fc99ec-4394-415d-890d-4d05edef16f5" location="10 18">C</jump>
+	<jump id="971f872e-50cb-4348-bfca-17ab480d3091" location="19 11">G</jump>
+	<jump id="d561573b-b023-4f0f-a9f4-a0d5b70c49af" location="2 22">I</jump>
+	<jump id="388df709-7020-493a-8713-bd4a7a8bb2c0" location="3 22">C</jump>
+	<jump id="ff960a93-8a9d-485c-ba20-95374f7a1c31" location="4 22">B</jump>
+	<jump id="08b63514-5367-48b5-b4eb-2f6d1afb9156" location="15 17">C</jump>
+	<jump id="946f097d-62c2-4384-be52-23feab5dbd1d" location="10 21">C</jump>
+	<jump id="d78958c6-1ccc-4120-97e4-748b70d7343f" location="17 16">H</jump>
+	<jump id="564c01db-f2e5-4ec9-90b4-51b2e8f76322" location="15 22">C</jump>
+	<jump id="43d485e6-b596-4417-b5c5-b8ea6d293c18" location="16 22">A</jump>
+	<anchor id="377533cd-8ded-47b2-9b74-ca481173e2a7" location="4 0">C</anchor>
+	<anchor id="9107301d-bfd8-40f9-ae3c-efcb722c0205" location="8 2">A</anchor>
+	<anchor id="e4083bee-bd58-4aa2-8903-59254b7454c2" location="12 6">F</anchor>
+	<anchor id="6fda0f73-a6e6-4e3e-9602-9f252620e67f" location="3 15">B</anchor>
+	<anchor id="78f51c50-3731-4015-a1cb-e482b6581741" location="1 16">I</anchor>
+	<anchor id="5691e0e2-0b48-4048-a516-65bde7fa9801" location="17 4">G</anchor>
+	<anchor id="8ded03eb-19c4-4590-bdd3-bb7d2e8577bf" location="17 9">H</anchor>
+	<link id="b6ec6183-dbc7-4ef5-bdec-1138acbb8f20" location="0 3"><up/><down/><right/></link>
+	<link id="0b98f0ae-d024-4b59-aac1-2caca0e7bf75" location="1 3"><left/><right/></link>
+	<link id="9c576bbf-c952-4805-97c5-e398f1d22e69" location="2 3"><left/><right/></link>
+	<link id="771ee013-a5ca-42d6-9347-fbf21bd39269" location="0 4"><up/><down/></link>
+	<link id="a8383196-6419-4b62-a243-5828ff5b6255" location="3 3"><up/><left/><down/><right/></link>
+	<link id="f4dc1f7d-e8ba-4cf8-be35-30763de43f58" location="0 5"><up/><down/></link>
+	<link id="d620c52d-fcf4-4bf9-9194-153728edc196" location="4 3"><up/><left/><down/><right/></link>
+	<link id="a0628e23-f1ed-4f8d-80ad-64eb68961d01" location="1 5"><left/><down/><right/></link>
+	<link id="c09cea15-dc04-4dc2-9ce5-d53f8a39294e" location="2 5"><left/><right/></link>
+	<link id="baef3a92-d136-4203-9246-4cdc2a132818" location="3 5"><up/><left/><down/><right/></link>
+	<link id="b73f1cf8-8787-411f-8f59-180a0698b061" location="0 6"><up/><down/></link>
+	<link id="ab635511-351a-4f2c-b452-4fa61a3c42f4" location="4 5"><up/><left/><right/></link>
+	<link id="acdf6639-5b01-49ec-bebc-b755448e2578" location="0 7"><up/><left/><down/><right/></link>
+	<link id="1104efd6-2b30-44de-b38f-c65ab2ba8056" location="5 5"><left/><down/><right/></link>
+	<link id="944a1238-a160-4048-b966-2ec85d77c4e6" location="7 1"><up/><down/><right/></link>
+	<link id="5deb81b1-6219-419a-bbdf-1576bf543cf6" location="7 2"><up/><down/></link>
+	<link id="6235d005-229b-4ebd-8ca8-5e21dfaf968c" location="7 3"><up/><down/></link>
+	<link id="8002bf87-a55c-4142-9b40-c7dc512f62ed" location="0 8"><up/><down/><right/></link>
+	<link id="b6382020-6235-4065-94c1-cf300b78c433" location="7 4"><up/><down/></link>
+	<link id="47afc6c1-993e-4160-b771-9ef710bf4140" location="8 1"><left/><right/></link>
+	<link id="428ee047-c088-49f1-bc93-9bfddc5b03fa" location="8 3"><up/><left/><down/><right/></link>
+	<link id="02959806-98d5-4dda-a183-acbdaf6f7fa5" location="7 5"><up/><down/></link>
+	<link id="10f77969-e2e0-419a-831a-5c17209a360d" location="4 8"><left/><down/><right/></link>
+	<link id="01eb87a1-1f23-4686-afa5-b2457b82679f" location="0 9"><up/><down/><right/></link>
+	<link id="58a545e8-8279-4d3a-8e2b-b24b92405f0e" location="1 9"><up/><left/><down/></link>
+	<link id="5e5cde44-b833-4381-9f86-93ab9e475f61" location="9 1"><left/><down/><right/></link>
+	<link id="59c28588-614e-4ac5-b21e-6839b9ef1cf7" location="7 6"><up/><down/></link>
+	<link id="4601b449-a689-4859-85bd-ce03390eccfd" location="9 2"><up/><down/></link>
+	<link id="278d2373-8348-4697-b880-444eff50499b" location="5 8"><up/><left/><down/></link>
+	<link id="968f909d-c667-46df-9b6d-544e3ddf6f3c" location="9 3"><up/><left/><down/></link>
+	<link id="466d030f-b678-4fee-bf2a-d8783950a5b7" location="7 7"><up/><down/></link>
+	<link id="63057842-0db8-401d-84cc-788272a1ed3d" location="9 5"><up/><left/><down/><right/></link>
+	<link id="1728b87b-a70c-4b9b-97a3-1b9be7d5c183" location="7 8"><up/><down/></link>
+	<link id="0144a1ef-551d-41e4-9908-21b050870788" location="10 5"><left/><down/><right/></link>
+	<link id="76804b1b-0ef1-45f0-97a8-6092048aef2b" location="7 9"><up/><down/></link>
+	<link id="e59f993c-5a44-4520-a45b-dcae0cd3529e" location="4 11"><left/><down/><right/></link>
+	<link id="a020cd48-1abb-4b03-b548-72eb1e669cc3" location="5 11"><up/><left/><down/></link>
+	<link id="9b00cffa-6e9e-4cda-810b-79229da729a8" location="11 5"><up/><left/><down/><right/></link>
+	<link id="0978ea43-845e-45bc-9092-51ea98843e69" location="7 10"><up/><down/></link>
+	<link id="974ac4c3-9499-432e-962d-b8ad39330bd4" location="7 11"><up/><down/></link>
+	<link id="06beaf88-172b-48ae-9dda-ba15a4423892" location="13 1"><up/><down/><right/></link>
+	<link id="efae0935-fdaa-4eb1-a756-ac0e84bdadf2" location="11 7"><up/><down/><right/></link>
+	<link id="7329debc-fa94-4bb8-8c15-3fe9d5dd2af2" location="13 2"><up/><down/></link>
+	<link id="d810db41-38d9-406c-8563-b58c22957201" location="13 3"><up/><down/></link>
+	<link id="779dd070-2eb1-41f5-9ed6-6d0fa3c4a5ea" location="10 9"><left/><down/><right/></link>
+	<link id="88829fc7-abbb-49f4-82c6-bf71dbea3425" location="13 4"><up/><down/></link>
+	<link id="11d306a6-f54d-481f-b457-9929f581319b" location="7 12"><up/><down/></link>
+	<link id="ac66ca55-f998-4fe2-a1df-03275c366eae" location="12 7"><up/><left/><down/></link>
+	<link id="495277cf-cdb2-4743-a2f3-f7617a767159" location="13 5"><up/><down/></link>
+	<link id="afb15d23-c066-4ce9-820c-53c029c72758" location="14 1"><left/><right/></link>
+	<link id="282ba604-0d2e-4d7f-93cd-696f87c08c7b" location="11 9"><up/><left/><down/><right/></link>
+	<link id="40ea48ae-0ec1-4d55-96f0-add844440eb1" location="13 6"><up/><down/></link>
+	<link id="a61914a4-586d-4a92-a39a-b053280d9e1d" location="7 13"><up/><down/></link>
+	<link id="cd53a109-74ce-4af3-8b68-7aabd9dce2c7" location="13 7"><up/><down/></link>
+	<link id="ccec7249-2387-4f90-9d47-8160a64da783" location="5 14"><up/><down/><right/></link>
+	<link id="e6058f21-2f3a-46bf-9159-2dc13192fd8e" location="12 9"><left/><down/><right/></link>
+	<link id="2cde353f-fd66-4374-9bdc-247b00d6f444" location="15 1"><left/><down/><right/></link>
+	<link id="05ba0538-bea6-49d0-b63e-57c007e9c6cb" location="6 14"><left/><down/><right/></link>
+	<link id="ea29748b-2915-44a1-a480-69271eaead69" location="13 8"><up/><down/></link>
+	<link id="36151e79-fa8c-40bc-92aa-af95114d91fb" location="15 3"><left/><down/><right/></link>
+	<link id="e8b7a820-0fc3-4d40-878c-9fc9cc94b1a0" location="10 12"><left/><down/><right/></link>
+	<link id="4081293b-78b4-4855-9214-286d1976af09" location="7 14"><up/><down/></link>
+	<link id="67602c58-468e-42bb-9634-837edcc3233f" location="13 9"><up/><down/></link>
+	<link id="63ce9cf4-6d45-4d1e-954f-de024a387575" location="16 1"><up/><left/><down/><right/></link>
+	<link id="743b88df-c642-4e6e-9506-ab25c0dcf719" location="16 3"><up/><left/><down/></link>
+	<link id="c71dac48-96d5-4346-838d-a4259752a54c" location="11 12"><up/><left/><down/></link>
+	<link id="daf40ba7-4fa1-4666-bdcf-2bac89c4f6c0" location="3 16"><up/><left/><right/></link>
+	<link id="911733a2-c266-4ba0-bbde-57122bc9ffcd" location="13 10"><up/><down/></link>
+	<link id="696490b4-3efa-47a3-a944-564a2c058740" location="4 16"><up/><left/><down/><right/></link>
+	<link id="d795034c-2d16-45da-b27d-9190164c03ba" location="15 7"><left/><down/><right/></link>
+	<link id="08ef5d2f-35a2-453d-a48d-4ce56cbdc472" location="7 15"><up/><down/></link>
+	<link id="c2f9beb4-2213-4d63-9905-bcb0066402cf" location="5 16"><up/><left/><down/></link>
+	<link id="b561c85a-3f9b-4642-947a-cdca57342e54" location="16 5"><up/><down/><right/></link>
+	<link id="8f386456-a8e6-429c-9a2d-f34be7c28322" location="13 11"><up/><down/></link>
+	<link id="653a2b08-4681-41ab-b6b7-e850d08e0765" location="1 17"><up/><down/><right/></link>
+	<link id="af1c3cb6-bc89-475f-b906-0ff532623467" location="2 17"><left/><right/></link>
+	<link id="b7b0b6e9-4145-4987-8087-dc6cea2acafa" location="3 17"><left/><right/></link>
+	<link id="74b81b12-abe1-4794-bffa-51140a273034" location="16 7"><up/><left/><down/><right/></link>
+	<link id="6e208b12-93c5-452f-ab20-960ebed53a21" location="7 16"><up/><down/></link>
+	<link id="18c911a3-f46b-4e39-9e36-254e4e548ab0" location="4 17"><left/><right/></link>
+	<link id="77267542-ee18-48e5-ae49-cf749dc3fa2a" location="13 12"><up/><down/></link>
+	<link id="c61848ba-714e-4263-be33-df89f3863d8b" location="17 5"><up/><left/><down/></link>
+	<link id="0be179c5-90e5-4943-b689-6e3f2744c63f" location="5 17"><up/><left/><down/></link>
+	<link id="0d5aa01b-e17c-46e2-953e-597f65f25928" location="16 9"><up/><down/></link>
+	<link id="68448ac2-1a72-4260-be45-d637b1149c57" location="13 13"><up/><down/></link>
+	<link id="782cd57d-feeb-4221-af1d-57abdcdececa" location="17 7"><left/><right/></link>
+	<link id="804dfc2f-3c26-4f0d-bf58-40bbc22a1919" location="7 17"><up/><down/></link>
+	<link id="e518b00b-6270-4212-9e49-4614cd0dbae8" location="5 18"><up/><down/></link>
+	<link id="19da7d85-6e3e-449b-86f4-31530181b25a" location="10 16"><left/><down/><right/></link>
+	<link id="fdfc2dc2-8b50-4b1f-94e2-41ecdcd70181" location="16 10"><up/><down/><right/></link>
+	<link id="b85bc27a-8c76-4260-a342-dc382ca5d7fd" location="13 14"><up/><down/></link>
+	<link id="210783b6-e988-4bf5-8aa7-5c1c0cecac46" location="15 12"><left/><down/><right/></link>
+	<link id="4a5bdfc6-6709-4730-be37-326077bbab59" location="18 7"><left/><right/></link>
+	<link id="bcbfc018-d74b-4e4f-a7a9-6e90bb149d6b" location="7 18"><up/><down/></link>
+	<link id="8c1f4bab-7ed5-480b-83e8-078f4ab22391" location="11 16"><up/><left/><down/></link>
+	<link id="e212e868-8b5b-40ed-9043-6621f0641703" location="17 10"><up/><left/><down/></link>
+	<link id="5a58e00b-4096-4397-aaab-30597fd28594" location="13 15"><up/><down/></link>
+	<link id="a2b12309-8740-48f0-9c60-016de8f510be" location="16 12"><up/><left/><down/><right/></link>
+	<link id="a032e488-adf3-4186-b3dc-80ce71eb6e03" location="2 20"><left/><down/><right/></link>
+	<link id="d7df88fa-ccf3-4143-9a74-ce5ef4f68969" location="3 20"><left/><down/><right/></link>
+	<link id="7f700bae-dea5-4741-80ea-d7d27066b6b9" location="7 19"><up/><down/></link>
+	<link id="65a186f6-cb0f-4ea1-aa06-8b21bff21700" location="19 7"><left/><down/><right/></link>
+	<link id="a36ef6d6-50c9-4cde-9015-57ca3a275fee" location="4 20"><left/><down/><right/></link>
+	<link id="fa455256-1002-4bf2-b387-494b2c4daa49" location="5 20"><up/><left/><down/><right/></link>
+	<link id="d68cf1b3-8dd6-4bc0-84cc-90fbf5ebde9a" location="13 16"><up/><down/></link>
+	<link id="5d9815b6-87ed-405f-9179-cc7e2a964da1" location="17 12"><left/><down/><right/></link>
+	<link id="07660977-05e7-48a7-b3f0-ebc6280b1c28" location="7 20"><up/><down/></link>
+	<link id="45f2754e-b244-49fd-a153-f21cc2bcb12b" location="15 15"><left/><down/><right/></link>
+	<link id="26078c3d-2a8d-48d7-8fcb-0979323da0fd" location="13 17"><up/><down/></link>
+	<link id="8012e2b8-9727-490a-b11e-166b88f6e09b" location="10 19"><left/><down/><right/></link>
+	<link id="6528c9e0-7e40-4340-b3ee-bd20223383f3" location="16 15"><up/><left/><down/></link>
+	<link id="46038562-a63d-466c-bdbc-d7663a7320b2" location="11 19"><up/><left/><down/></link>
+	<link id="649911c8-8f3f-492d-a397-63f89af0285d" location="7 21"><up/><down/></link>
+	<link id="e3a51d77-738b-4bd5-ac6d-85c44377efce" location="13 18"><up/><down/></link>
+	<link id="f89d39c7-ba48-4c45-a9e1-e09a83d7cd8e" location="5 22"><up/><down/><right/></link>
+	<link id="69a1054e-127b-400f-be69-c888a5a9677a" location="6 22"><left/><right/></link>
+	<link id="ae1b55a3-3fa2-4759-ba9e-bdc407bc1826" location="13 19"><up/><left/><down/><right/></link>
+	<link id="a0e13204-b165-4577-ad1a-54f4e29c23e8" location="7 22"><up/><left/><right/></link>
+	<link id="b90ad2ea-76d8-4805-816c-60c53167c27e" location="16 17"><up/><down/></link>
+	<link id="754af64e-8c08-4f26-8e69-e7824a922bad" location="11 21"><up/><down/><right/></link>
+	<link id="7cfe9c4a-37e5-4883-8529-120f31fb33c5" location="13 20"><up/><left/><down/><right/></link>
+	<link id="dac15091-8da0-4376-9469-138a6006f42c" location="16 18"><up/><down/></link>
+	<link id="8f068960-829f-431b-980d-c81d9c5de746" location="12 21"><left/><right/></link>
+	<link id="079ff3ec-19fe-4d8a-a201-30174aa4ef0f" location="13 21"><up/><left/><down/></link>
+	<link id="90af0559-9777-4dfc-aaab-1f027a5dd735" location="15 20"><left/><down/><right/></link>
+	<link id="269b4003-00dc-4d90-ba08-2fb12535c9c6" location="16 20"><up/><left/><down/></link>
+
+</sfc>

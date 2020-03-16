@@ -1,0 +1,101 @@
+{
+  "custom": {},
+  "params": {
+    "LabelText": "Process Value",
+    "MachineNumber": 1,
+    "Tagname": "PV"
+  },
+  "propConfig": {
+    "params.LabelText": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.MachineNumber": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.Tagname": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 108,
+      "width": 291
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "basis": "100px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.LabelText"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "alignVertical": "center",
+          "style": {
+            "fontSize": "20px",
+            "fontWeight": "bolder",
+            "paddingLeft": "10px"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "LedDisplay"
+        },
+        "position": {
+          "basis": "128px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.value": {
+            "binding": {
+              "config": {
+                "fallbackDelay": 2.5,
+                "mode": "indirect",
+                "references": {
+                  "1": "{view.params.MachineNumber}",
+                  "2": "{view.params.Tagname}"
+                },
+                "tagPath": "[default]Machine{1}/{2}"
+              },
+              "type": "tag"
+            }
+          }
+        },
+        "props": {
+          "numberFormat": "#,##0.0"
+        },
+        "type": "ia.display.led-display"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "style": {
+        "paddingBottom": "3px",
+        "paddingLeft": "3px",
+        "paddingRight": "3px",
+        "paddingTop": "3px"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

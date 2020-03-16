@@ -1,0 +1,37 @@
+def partIDtoAIV(MachineCode):
+	query='SELECT ID FROM Cell WHERE CellCode LIKE "'+MachineCode+'%" ORDER BY ID LIMIT 1'
+	SB2start=system.db.runScalarQuery(query,"FMSLine")
+	SB2end=SB2start+9
+	for i in range(SB2start,SB2end):
+		AIVID=i+20
+		system.db.runPrepUpdate('UPDATE Partid_fms SET PartID=(SELECT * FROM (SELECT PartID FROM partid_fms WHERE MachineID=?) x), TimeStamp=NOW() WHERE MachineID=?',[i,AIVID],"FMSLine")
+		system.db.runPrepUpdate('UPDATE partid_fms SET PartID=0,Timestamp=NOW() WHERE MachineID=?',[i],"FMSLine")
+	if i == (SB2end-1):
+		return 1
+	else:
+		return 0
+		
+def partIDtoSB3(MachineCode):
+	query='SELECT ID FROM Cell WHERE CellCode LIKE "'+MachineCode+'%" ORDER BY ID LIMIT 1'
+	AIVstart=system.db.runScalarQuery(query,"FMSLine")
+	AIVend=AIVstart+9
+	for i in range(AIVstart,AIVend):
+		SB3ID=i+20
+		system.db.runPrepUpdate('UPDATE Partid_fms SET PartID=(SELECT * FROM (SELECT PartID FROM partid_fms WHERE MachineID=?) x), TimeStamp=NOW() WHERE MachineID=?',[i,SB3ID],"FMSLine")
+		system.db.runPrepUpdate('UPDATE partid_fms SET PartID=0,Timestamp=NOW() WHERE MachineID=?',[i],"FMSLine")
+	if i == (AIVend-1):
+		return 1
+	else:
+		return 0
+	
+def partIDtoTags(BayNumber):
+	if BayNumber==1:
+		result=system.db.runQuery('SELECT PartID FROM partID_fms WHERE MachineID>150 and MachineID<160',"FMSLine")
+	elif BayNumber==2:
+		result=system.db.runQuery('SELECT PartID FROM partID_fms WHERE MachineID>160 and MachineID<170',"FMSLine")
+	
+	for i in range(0,9):
+		
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_str_PartID_Cell"+str(i+1)+"_At_SB3_Bay"+str(BayNumber)
+		system.tag.write(tagPath,result[i][0])
+

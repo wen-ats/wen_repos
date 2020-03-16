@@ -1,0 +1,147 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.3499997" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Thu Oct 31 10:37:56 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="d9fd94bd-731d-4900-9fda-0b7bac6afc70" location="2 1" name="__begin" factory-id="begin-step">	</step>
+	<step id="96eafed1-07e8-4851-8e5b-853baee9f68a" location="2 6" name="B1LoadReq1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_Load_Req_s",1)</start-script>
+	</step>
+	<step id="9e9991cb-2970-4d22-aeda-1b9d3b6303d9" location="4 6" name="B1LoadReq0" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_Load_Req_s",0)</start-script>
+	</step>
+	<step id="c8d5e95e-05ef-42ae-b1fe-c476815ca023" location="6 6" name="B1UnLoadReq1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_UnLoad_Req_s",1)</start-script>
+	</step>
+	<step id="039bf605-2974-4d03-a06f-71857a90cd74" location="8 6" name="B1UnLoadReq0" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_UnLoad_Req_s",0)</start-script>
+	</step>
+	<step id="121a84f5-157f-4f29-93bb-b44759951186" location="10 6" name="B2LoadReq1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_Load_Req_s",1)</start-script>
+	</step>
+	<step id="bc6b4572-4bc5-4e49-82b9-2816186b9834" location="12 6" name="B2LoadReq0" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_Load_Req_s",0)</start-script>
+	</step>
+	<step id="877fad93-681c-4410-a7c2-bc4fd586c0cb" location="14 6" name="B2UnLoadReq1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_UnLoad_Req_s",1)</start-script>
+	</step>
+	<step id="e5ecb9f0-d161-4355-9b52-0f62d796ae9f" location="16 6" name="B2UnLoadReq0" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_UnLoad_Req_s",0)</start-script>
+	</step>
+	<transition id="f76d59e1-20b4-4cf5-b6c5-5ad32d5478a9" location="2 3">({[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Status/FMS_Sts}=1 || {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Status/iFMS_Sts}=1) &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Status/Running_Sts}=1 
+&amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Remote_Mode}=1  &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}=1
+//true   </transition>
+	<transition id="9295156c-9f3c-4410-a183-7b1fea9503db" location="2 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay1_Load_Request}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_Load_Req}=0</transition>
+	<transition id="cc4faf02-1a0c-4cc7-bee6-a74ebae4d547" location="4 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay1_Load_Request}=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_Load_Req}=1</transition>
+	<transition id="29074de7-b10e-4bc9-96cc-b173d1d0b6fa" location="2 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_Load_Req}=1</transition>
+	<transition id="6678ca56-570d-49d7-aa99-0be2af21ecde" location="6 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay1_Unload_Request}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_UnLoad_Req}=0</transition>
+	<transition id="51464de0-6294-48c3-b545-990c9ac68c12" location="4 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_Load_Req}=0</transition>
+	<transition id="6546ebc3-7869-4efd-87c0-0848487a9356" location="6 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_UnLoad_Req}=1</transition>
+	<transition id="18dfc496-bb8d-4f1e-9a96-96336fb8f832" location="8 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay1_Unload_Request}=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_UnLoad_Req}=1</transition>
+	<transition id="a158f3ec-0084-4eb6-bcf4-5496728c9b97" location="8 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B1_UnLoad_Req}=0</transition>
+	<transition id="71103dfc-cd66-4ccc-b051-48cf55e3506e" location="10 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay2_Load_Request}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_Load_Req}=0</transition>
+	<transition id="615a0b03-3d2f-4083-8a76-9bf2c35fba24" location="10 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_Load_Req}=1</transition>
+	<transition id="a26eb5ba-9f18-4a41-9ec9-0302adcf829b" location="12 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay2_Load_Request}=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_Load_Req}=1</transition>
+	<transition id="d00c66c9-b15c-4686-972b-4327e7eee40f" location="12 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_Load_Req}=0</transition>
+	<transition id="6daa9567-56cc-45ad-a12d-42894418bafa" location="14 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay2_Unload_Request}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_UnLoad_Req}=0</transition>
+	<transition id="98386284-0777-418f-bad9-2791e3d3652d" location="14 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_UnLoad_Req}=1</transition>
+	<transition id="259d0fbb-0909-4f81-9a1a-f0c7c7c857a3" location="16 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay2_Unload_Request}=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_UnLoad_Req}=1</transition>
+	<transition id="0f42012e-16b6-4328-afa1-25c6d0d8d874" location="16 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/SB3_B2_UnLoad_Req}=0</transition>
+	<jump id="e6e4a40b-2fc4-46e6-b35e-504ff16c3bc9" location="2 8">A</jump>
+	<jump id="4cd68856-13f4-4b17-baef-b07f95f04237" location="4 8">A</jump>
+	<jump id="d354e555-d488-41d9-a579-11dfb20f7470" location="6 8">A</jump>
+	<jump id="df2eb609-07b4-4400-bc6a-2c386eba59b0" location="8 8">A</jump>
+	<jump id="ec70023b-b1e6-42e8-8e79-c296c25566ad" location="10 8">A</jump>
+	<jump id="955cf979-8a25-4a90-a672-f5c6b9758593" location="12 8">A</jump>
+	<jump id="0e8844af-3d49-48df-afbb-c09475fb3f28" location="14 8">A</jump>
+	<jump id="e2e7bc5a-24b8-4a11-8dd8-67fee6ab9916" location="16 8">A</jump>
+	<anchor id="44aeab8b-f9a4-49a2-bcff-7517adaf0b4d" location="1 1">A</anchor>
+	<link id="fb50a218-db00-40e1-8d9b-3c0ef743680b" location="1 2"><up/><down/><right/></link>
+	<link id="a285570d-77ce-4bcc-a303-9578ecce060c" location="2 2"><up/><left/><down/></link>
+	<link id="2f0da5dc-9ccf-4c61-837c-037d91ffcc53" location="2 4"><up/><down/><right/></link>
+	<link id="795f54db-48ee-4a42-bca6-88067cea2e7a" location="3 4"><left/><right/></link>
+	<link id="a1cf9d38-9fdf-4f44-986f-d878155ae240" location="4 4"><left/><down/><right/></link>
+	<link id="dbfa77d4-2d7b-4b1a-963b-3868a2ff19bc" location="5 4"><left/><right/></link>
+	<link id="74c61421-fabb-4e67-8f23-7dfc952a290a" location="6 4"><left/><down/><right/></link>
+	<link id="d771cf0f-7b26-46c5-9b89-fac890626396" location="7 4"><left/><right/></link>
+	<link id="8c217737-4632-412e-b815-4c2c10b9dc81" location="8 4"><left/><down/><right/></link>
+	<link id="1a3ec5a0-b7dc-4d2c-b185-45aebd7bd71d" location="9 4"><left/><right/></link>
+	<link id="13290adb-fbf0-4058-bf2f-80470f757772" location="10 4"><left/><down/><right/></link>
+	<link id="de58fc36-0c79-4164-a26b-8a1d54bc8c79" location="11 4"><left/><right/></link>
+	<link id="75a49e45-e64d-4453-b228-a35e5a6e9d07" location="12 4"><left/><down/><right/></link>
+	<link id="97d44921-7e8f-42fb-980e-41fcacbc60d7" location="13 4"><left/><right/></link>
+	<link id="f12769ca-0986-4efb-b82a-836f06072fab" location="14 4"><left/><down/><right/></link>
+	<link id="393c82f4-a1e8-418a-8d97-4f57cf18f7f2" location="15 4"><left/><right/></link>
+	<link id="8c0dc005-2c0d-4880-9ff7-4257d458ad2c" location="16 4"><left/><down/><right/></link>
+
+</sfc>

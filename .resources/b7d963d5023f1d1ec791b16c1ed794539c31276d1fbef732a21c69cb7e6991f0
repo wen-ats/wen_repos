@@ -1,0 +1,30 @@
+def InsertTable():
+	pds = shared.Test.getData()
+	if pds is not None:
+		addCnt = editCnt = 0
+		for row in pds:
+			if len(row[0]) == 0 or row[0].startswith('ID') :
+				continue
+			
+			ID = row[0]
+			MachineID = row[1]
+			AlarmCode = row[2]
+			AlarmName = row[3]
+			FaultID = row[4]
+			TimeStamp = system.date.now()
+			#startDate=system.date.format(StartDate,"yyyy-MM-dd HH:mm:ss")
+			sel = "INSERT INTO alarm_table (ID, MachineID, AlarmCode, AlarmName, FaultID, TimeStamp) VALUES (?,?,?,?,?,?)"
+			system.db.runPrepUpdate(sel,[ID,MachineID,AlarmCode,AlarmName,FaultID,TimeStamp],"FMSLine")
+
+			addCnt += 1
+		print "row added: %s" %(addCnt)
+
+def getData():
+	import csv
+	
+	filePath = system.file.openFile('csv')
+	if filePath is not None:
+		inData = csv.reader(open(filePath))
+		pDs = [x for x in inData]
+		return pDs
+	

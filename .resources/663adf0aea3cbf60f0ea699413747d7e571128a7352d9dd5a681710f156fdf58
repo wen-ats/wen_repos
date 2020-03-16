@@ -1,0 +1,7 @@
+def sfcStatusCheck(SFCName):
+	data = system.sfc.getRunningCharts(SFCName)
+	status = data.getValueAt(0,4)
+	if str(status) == "Running":
+		return 1
+	else:
+		return 0

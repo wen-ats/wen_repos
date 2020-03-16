@@ -1,0 +1,252 @@
+<?xml version="1.0" ?>
+<sfc zoom="0.9499999" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Thu Sep 26 19:00:47 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="6f854d1b-b416-4415-91d9-cc5416092578" location="3 1" name="__begin" factory-id="begin-step">	</step>
+	<step id="ca12cf12-43b6-4e1f-8da8-dcc9a157d6ad" location="3 5" name="TransferAIVtoSB3B2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Check if Bay 2 In Progress")
+	#Transfer total count of PartIds to SB3 
+#	sleep(1)
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay2_Part_ID_Ready",1)
+	</start-script>
+	</step>
+	<step id="18a97e72-1293-4d0b-a88f-a0b0ae6e59bf" location="3 8" name="TransferAIVtoSB3B1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Transferring Parts to SB3 Bay 1")
+	#Transfer part Ids from AIV Space to SB3 Bay 1 space in Database
+	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Simulation").value==0:
+		chart.transferDone=shared.SB2.partIDtoSB3("AIVB1")
+	else:
+		chart.transferDone=1
+	#Transfer total count of PartIds to SB3 
+	
+	</start-script>
+		<stop-script>def onStop(chart, step):
+	"""
+	This will run when the step is finished and
+	all other actions complete.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Simulation").value==0:
+		chart.count=system.db.runScalarQuery('SELECT COUNT(*) FROM partID_fms WHERE MachineID&gt;150 and MachineID&lt;160 and PartID!="0"',"FMSLine")
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_Total_Parts_Transferred_To_SB3_Bay1",chart.count)
+		chart.partCells=system.db.runQuery("SELECT machineid, partid FROM partID_fms WHERE partid!='0' and machineid BETWEEN 150 and 160","FMSLine")
+		for index in range(chart.partCells.rowCount):
+			chart.partID=system.db.runScalarPrepQuery("SELECT id FROM master_parts WHERE partname=?",[chart.partCells[index][1]],"FMSLine")
+			system.db.runPrepUpdate("INSERT INTO parts_tracking(partid,cellid,starttime) VALUES(?,?,CURRENT_TIMESTAMP)",[chart.partID,chart.partCells[index][0]],"FMSLine")
+		shared.SB2.partIDtoTags(1)</stop-script>
+	</step>
+	<step id="23fd7dac-2f64-49af-a2c5-9b1470b35d19" location="7 5" name="TransferAIVtoSB3B2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Check if Bay 2 In Progress")
+	#Transfer total count of PartIds to SB3 
+#	sleep(1)
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay2_Part_ID_Ready",1)
+	</start-script>
+	</step>
+	<step id="8069e697-58c7-4c73-9187-34091e4f1606" location="3 9" name="TransferAIVtoSB3B1_2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+#	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Simulation").value==0:
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay1_Part_ID_Ready",1)
+	
+	</start-script>
+	</step>
+	<step id="ea9c3bc5-e163-4c45-85bc-47cd5413a5fc" location="7 8" name="TransferAIVtoSB3B2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Transferring Parts to SB3 Bay 2")
+	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Simulation").value==0:
+		#Transfer part Ids from AIV Space to SB3 Bay 2 space in Database
+		chart.transferDone=shared.SB2.partIDtoSB3("AIVB2")
+	else:
+		chart.transferDone=1
+	#Transfer total count of PartIds to SB3 
+#	sleep(1)
+#	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay2_Part_ID_Ready",1)
+	</start-script>
+		<stop-script>def onStop(chart, step):
+	"""
+	This will run when the step is finished and
+	all other actions complete.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Simulation").value==0:
+		chart.count=system.db.runScalarQuery('SELECT COUNT(*) FROM partID_fms WHERE MachineID&gt;160 and MachineID&lt;170 and PartID!="0"',"FMSLine")
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_Total_Parts_Transferred_To_SB3_Bay2",chart.count)
+		chart.partCells=system.db.runQuery("SELECT machineid, partid FROM partID_fms WHERE partid!='0' and machineid BETWEEN 160 and 170","FMSLine")
+		for index in range(chart.partCells.rowCount):
+			chart.partID=system.db.runScalarPrepQuery("SELECT id FROM master_parts WHERE partname=?",[chart.partCells[index][1]],"FMSLine")
+			system.db.runPrepUpdate("INSERT INTO parts_tracking(partid,cellid,starttime) VALUES(?,?,CURRENT_TIMESTAMP)",[chart.partID,chart.partCells[index][0]],"FMSLine")
+		shared.SB2.partIDtoTags(2)
+		
+</stop-script>
+	</step>
+	<step id="14dfb0fa-eea7-4a40-bb0f-034a1c195c7e" location="7 9" name="TransferAIVtoSB3B2_2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+#	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Simulation").value==0:
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay2_Part_ID_Ready",1)</start-script>
+	</step>
+	<step id="14f82a1e-fe31-47f1-8c82-849ea9de9847" location="3 12" name="StorageReadyB1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.transferDone=0
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Starting Storage Bay 1")</start-script>
+	</step>
+	<step id="2438b810-bcf9-4011-81ea-61043d5f2a5a" location="7 12" name="StorageReadyB2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.transferDone=0
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Starting Storage Bay 2")</start-script>
+	</step>
+	<step id="bf9071e0-77b4-438f-8e18-e4bbe7453c91" location="3 15" name="StorageinProgressB1" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Storage in Progress Bay 1")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Storage Done Bay 1")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay1_Part_ID_Ready",0)</start-script>
+	</step>
+	<step id="461fc8e1-cbef-4f60-83bd-69b1432f9b0b" location="7 15" name="StorageinProgressB2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Storage in Progress Bay 2")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Storage Done Bay 2")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay2_Part_ID_Ready",0)</start-script>
+	</step>
+	<transition id="a3748908-1649-4594-b556-6d3e2cf19914" location="3 4">({[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/IOs/Bay1_Con_Fwd}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/IOs/Bay1_Tray_Present_Snr}=0)||
+{[Scada]ITE/Dummy}=1</transition>
+	<transition id="1fe1b302-d41b-42bf-848b-6cf1cdca1f3d" location="2 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}!=1</transition>
+	<transition id="acbf2b3c-8e04-4101-ae69-570ed9477350" location="3 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_Performing_Storage}=0</transition>
+	<transition id="5ebfa470-ede5-4030-8961-c06aecbcde56" location="7 4">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/IOs/Bay2_Con_Fwd}=1 &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/IOs/Bay2_Tray_Present_Snr}=0</transition>
+	<transition id="e01fc6fd-613a-44a1-b484-263a558ebadf" location="6 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}!=1</transition>
+	<transition id="ea230236-dad8-4a72-b499-2d7e685661bc" location="7 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_Performing_Storage}=0</transition>
+	<transition id="7ba0cc29-738f-4c90-b8c9-09cc40ab71b9" location="2 11">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}!=1</transition>
+	<transition id="ac61e3cc-1c11-4b7e-b56d-1eec322a071d" location="3 11">{transferDone}=1</transition>
+	<transition id="7a4d957c-93eb-4528-9523-e84f13e2c04d" location="6 11">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}!=1</transition>
+	<transition id="9370caa1-51f5-483a-99f5-a9868fd58bc6" location="7 11">{transferDone}=1</transition>
+	<transition id="659787b1-c618-4858-aab5-e73da95c600d" location="2 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}!=1</transition>
+	<transition id="614f0993-1fd5-42af-b761-1c599b0e1c88" location="3 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_Performing_Storage}=1</transition>
+	<transition id="90b1c38e-1ebe-4f22-8ff7-83848b89b2aa" location="6 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}!=1</transition>
+	<transition id="a7f73d0a-3656-4768-8732-ea61ce178351" location="7 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_Performing_Storage}=1</transition>
+	<transition id="78ef2ddc-0859-4f2c-a409-8a35fd315f8d" location="3 16">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay1_Part_ID_Ready}=0</transition>
+	<transition id="ffd73062-bb26-4445-b227-55f3eb82adc9" location="7 16">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_SB3_Bay2_Part_ID_Ready}=0</transition>
+	<jump id="173ad4b0-4a03-48fb-a87e-816f7bb29f3a" location="2 8">A</jump>
+	<jump id="8494aced-d23d-4a90-aa28-109090a3e02e" location="6 8">A</jump>
+	<jump id="b091e4fe-2741-4e03-b644-f27226b5f1da" location="2 12">A</jump>
+	<jump id="c5682fde-608c-4773-ae20-f9dd97141a9b" location="6 12">A</jump>
+	<jump id="5a82fee1-3120-4b40-86df-29ec700536d6" location="2 15">A</jump>
+	<jump id="2da44736-e929-4445-a3c4-1f7964face29" location="6 15">A</jump>
+	<jump id="924df474-c790-4e06-b119-a2be9e6aed59" location="3 17">A</jump>
+	<jump id="6fefc64d-78b1-49ef-9bae-aaa93d0894b6" location="7 17">A</jump>
+	<anchor id="c1d34c4e-d5ee-4319-902c-38217a604549" location="4 1">A</anchor>
+	<link id="7b8df2fd-60c9-45f1-9e2d-7a73fe5db174" location="3 2"><up/><down/><right/></link>
+	<link id="e3fd6032-890f-42da-8fdd-992e8538cef2" location="3 3"><up/><left/><down/><right/></link>
+	<link id="70aa9b0b-1425-4f97-a7cd-56bb34ec0e6e" location="4 2"><up/><left/><down/></link>
+	<link id="9187f56a-8717-4beb-8b9f-449201b1888e" location="4 3"><left/><right/></link>
+	<link id="a962dd8c-0936-409b-8b17-75da15e34acc" location="5 3"><left/><right/></link>
+	<link id="00d7312b-cb6b-493b-8dcc-4cd48b6f5801" location="2 6"><up/><down/><right/></link>
+	<link id="1b63d550-7536-461a-b040-499cd44affc6" location="6 3"><left/><right/></link>
+	<link id="b7d59778-58ff-47e1-8028-b7b52d5bf072" location="3 6"><up/><left/><down/></link>
+	<link id="856424f8-e86c-4df8-ab57-1cb021515c12" location="7 3"><left/><down/><right/></link>
+	<link id="7282163b-b53a-4b81-83ce-cd920c0dd05a" location="6 6"><up/><down/><right/></link>
+	<link id="2ff1a0e5-0b92-4684-8b6e-7a296683ca3a" location="7 6"><up/><left/><down/><right/></link>
+	<link id="3b0bc6c2-25ec-4916-92ad-a901be28f333" location="2 10"><up/><down/><right/></link>
+	<link id="fa75226f-d42a-429a-be4d-0b3a9b914ad7" location="3 10"><up/><left/><down/></link>
+	<link id="fa368f50-d842-4b1c-8f06-9ecd1c504c8b" location="6 10"><up/><down/><right/></link>
+	<link id="bc264461-6a13-4517-9333-499580fda61e" location="7 10"><up/><left/><down/></link>
+	<link id="c6144e71-855f-432f-8cdd-77bc9ddcd54a" location="2 13"><up/><down/><right/></link>
+	<link id="742b06f0-3d7e-4c86-8281-65c383133e68" location="3 13"><up/><left/><down/></link>
+	<link id="bd3cf33b-cf23-46fd-8762-07cef040a36c" location="6 13"><up/><down/><right/></link>
+	<link id="13b431d6-1abc-482e-aa17-eaf4e11ee3dc" location="7 13"><up/><left/><down/></link>
+
+</sfc>

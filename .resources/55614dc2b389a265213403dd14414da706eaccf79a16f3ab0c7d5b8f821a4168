@@ -1,0 +1,76 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Carousel"
+        },
+        "position": {
+          "height": 412,
+          "width": 566,
+          "x": 117,
+          "y": 68
+        },
+        "props": {
+          "appearance": {
+            "useDefaultViewHeight": false
+          },
+          "lazyLoad": false,
+          "style": {
+            "backgroundColor": "#D5D5D5"
+          },
+          "views": [
+            {
+              "alignItems": "center",
+              "direction": "column",
+              "justify": "center",
+              "viewParams": {
+                "MachineName": "MC 01",
+                "MachineNumber": 1
+              },
+              "viewPath": "MachineCarousel"
+            },
+            {
+              "alignItems": "center",
+              "direction": "column",
+              "justify": "center",
+              "viewParams": {
+                "MachineName": "MC 05",
+                "MachineNumber": 5
+              },
+              "viewPath": "MachineCarousel"
+            },
+            {
+              "alignItems": "center",
+              "direction": "column",
+              "justify": "center",
+              "viewParams": {
+                "MachineName": "MC 07",
+                "MachineNumber": 7
+              },
+              "viewPath": "MachineCarousel"
+            },
+            {
+              "alignItems": "center",
+              "direction": "column",
+              "justify": "center",
+              "viewParams": {
+                "MachineName": "MC 08",
+                "MachineNumber": 8
+              },
+              "viewPath": "MachineCarousel"
+            }
+          ]
+        },
+        "type": "ia.display.carousel"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.coord"
+  }
+}

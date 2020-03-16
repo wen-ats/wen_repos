@@ -1,0 +1,59 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 159
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "events": {
+          "dom": {
+            "onClick": {
+              "config": {
+                "id": "DockedMenu",
+                "type": "toggle"
+              },
+              "scope": "C",
+              "type": "dock"
+            }
+          }
+        },
+        "meta": {
+          "name": "Icon"
+        },
+        "position": {
+          "basis": "118px"
+        },
+        "props": {
+          "path": "material/menu"
+        },
+        "type": "ia.display.icon"
+      },
+      {
+        "meta": {
+          "name": "Label"
+        },
+        "position": {
+          "basis": "682px"
+        },
+        "props": {
+          "alignVertical": "center",
+          "style": {
+            "fontSize": "55px",
+            "lineHeight": "100px",
+            "textAlign": "center"
+          },
+          "text": "ACME Inc."
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "type": "ia.container.flex"
+  }
+}

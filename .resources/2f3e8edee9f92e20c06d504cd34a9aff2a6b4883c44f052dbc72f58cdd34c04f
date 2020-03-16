@@ -1,0 +1,10 @@
+def ConfirmNavWindow():
+	windows = system.gui.getOpenedWindowNames()
+	#print 'There are %d windows open' % len(windows)
+	Present=0
+	for path in windows :
+    	#print path
+    		if path=='ITE/Navigation/Navigation':
+    			Present=1
+   	return Present;
+    

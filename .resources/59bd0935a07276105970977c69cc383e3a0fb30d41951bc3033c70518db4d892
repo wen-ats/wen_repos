@@ -1,0 +1,143 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.1999998" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Thu Aug 22 13:25:01 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="6f854d1b-b416-4415-91d9-cc5416092578" location="3 1" name="__begin" factory-id="begin-step">	</step>
+	<step id="715575de-2488-40df-a8a5-b2f26c2e4d45" location="3 4" name="FetchPartIDfromDB" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Fetching PartID from Database")
+	#user scan its IC number at Kiosk based on that we check PartID related to that IC from Tracking table
+	#and if parts are present in ASRS , give user the option to select which one they want to take out
+	#transfer that partID to ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_str_PartID_To_be_Retrieved_From_ASRS tag
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_Retrieval_ID_Ready",1)
+	sleep(.5)</start-script>
+	</step>
+	<step id="5e6d3f5e-b6d1-4728-9d4f-7ffd685a8cd5" location="3 6" name="ReadytoRetrieve" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Ready to Retrieve")</start-script>
+	</step>
+	<step id="795fec7f-47c5-4a7a-af30-a6a651873575" location="3 8" name="RetrievalinProgress" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Retrieval in Progress")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_Retrieval_ID_Ready",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Retrival_cmd",0)</start-script>
+	</step>
+	<step id="97b27227-5743-4baa-baef-7d1b06c7247f" location="1 11" name="PartReadytoReject" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Part Ready to Reject")
+	</start-script>
+	</step>
+	<step id="0224a61a-1635-4bf8-a146-b0dc858f92fe" location="3 11" name="PickPartfromBay" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Part Ready to be Unloaded")
+	</start-script>
+	</step>
+	<step id="86fda416-b549-4568-83dd-e1b3d3fe23ac" location="6 11" name="ClearAbort" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	sleep(1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_r_ASRS_SCADA_Retrieval_Aborted",0)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Retrieval Aborted")</start-script>
+	</step>
+	<step id="692dad8c-44e5-4d5a-a8d8-a45786c037e1" location="1 13" name="PartRejected" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Part Rejected ")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Retrival_cmd",0)
+</start-script>
+	</step>
+	<step id="929f386b-edef-4460-9051-345eac58262e" location="3 13" name="PickedPartfromBay" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/Messages","Part Picked from Output Bay")
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Retrival_cmd",0)
+</start-script>
+	</step>
+	<transition id="a08c332f-093f-4dc2-9cf9-824412ebfbe8" location="3 3">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Retrival_cmd}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_Performing_Retrieval}=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_Performing_Storage}=0</transition>
+	<transition id="bda50b94-d436-4b3f-b9b5-0923ffac849c" location="3 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_Retrieval_ID_Ready}=1</transition>
+	<transition id="09d4bcbb-fb2d-445c-b6f8-040bed6dcf66" location="3 7">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_Performing_Retrieval}=1</transition>
+	<transition id="b7729e1a-6115-4128-94d6-5dd33d9c9a77" location="1 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Part_Rejected_In_Waste_Bin}=1</transition>
+	<transition id="c511a18b-3790-45fe-883e-7e3fc0777f0a" location="3 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/PartPresentatOPBay}=1</transition>
+	<transition id="491a9a60-2c48-4d8f-b425-587664a30595" location="5 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Remote_Mode}!=1</transition>
+	<transition id="e92674b5-3134-4fc9-9a7f-b88e65898570" location="6 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_r_ASRS_SCADA_Retrieval_Aborted}</transition>
+	<transition id="3ff51e31-370c-433d-acf0-56e40dbcf895" location="1 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Part_Rejected_In_Waste_Bin}=0</transition>
+	<transition id="47819814-c89c-42b6-adac-05c366fcb4c6" location="3 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/PartPresentatOPBay}=0</transition>
+	<transition id="ed5d8274-5e2e-43a2-baa2-d4678e186938" location="1 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Retrival_cmd}=0</transition>
+	<transition id="3b83164c-47a7-4789-b8c5-09bf50c69bd8" location="3 14">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/Retrival_cmd}=0</transition>
+	<jump id="ab206e83-48ea-40fa-87eb-3ce108b33e31" location="5 11">A</jump>
+	<jump id="3832e037-d40d-4c32-a3c8-8a95ba586451" location="6 12">A</jump>
+	<jump id="4cb20a40-406c-4e73-8ba1-7f6b1178f4a8" location="1 15">A</jump>
+	<jump id="d126d10e-eaf3-4386-a2d5-4fa71b72f9ac" location="3 15">A</jump>
+	<anchor id="c1d34c4e-d5ee-4319-902c-38217a604549" location="4 1">A</anchor>
+	<link id="7b8df2fd-60c9-45f1-9e2d-7a73fe5db174" location="3 2"><up/><down/><right/></link>
+	<link id="70aa9b0b-1425-4f97-a7cd-56bb34ec0e6e" location="4 2"><up/><left/><down/></link>
+	<link id="cd378928-1985-4713-a8bb-580b39093d43" location="1 9"><up/><down/><right/></link>
+	<link id="cfbab906-cdf0-4746-bd7c-e48ea2b9e4a8" location="2 9"><left/><right/></link>
+	<link id="a72b234e-c82c-4c32-a92e-c02b4e442f55" location="3 9"><up/><left/><down/><right/></link>
+	<link id="aebc7ab6-f68d-43b7-8e0a-ff4975872bad" location="4 9"><left/><right/></link>
+	<link id="4f44683b-3645-4eb1-a07f-a2ebf61a7888" location="5 9"><left/><down/><right/></link>
+	<link id="f052630c-7fce-41b5-90b0-95ce2751c758" location="6 9"><left/><down/><right/></link>
+
+</sfc>

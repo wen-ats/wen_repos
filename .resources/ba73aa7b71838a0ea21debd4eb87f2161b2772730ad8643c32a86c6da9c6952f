@@ -1,0 +1,14 @@
+def resultCheck():
+#	path=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/IOs/GatewayVIPath").value
+#	if "INVALID " in open(str(path)).read() or "FAIL " in open(str(path)).read():
+#		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Status/Pass",1)
+#	elif "PASS " in open(str(path)).read():
+#		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Status/Pass",2)
+		
+	path=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/IOs/GatewayVIPath").value
+	pathopened=system.file.openFile('csv', path)
+	"INVALID " in system.file.readFileAsString(pathopened).read
+	if "INVALID " in system.file.openFile('csv', path) or "FAIL " in system.file.openFile('csv', path):
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Status/Pass",1)
+	elif "PASS " in open(str(path)).read():
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Status/Pass",2)

@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.0" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Wed Oct 23 16:34:14 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="345811b3-9bb1-4139-985f-fe81c4815033" location="3 1" name="__begin" factory-id="begin-step">	</step>
+	<step id="debbf1f5-4472-4f04-83c1-95366d06a382" location="3 4" name="Transition" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/Messages","In Transition")</start-script>
+	</step>
+	<step id="d2b3176d-bc96-4a82-bdd1-34faf809a599" location="3 7" name="AtAR" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/Messages","At AR Position")</start-script>
+	</step>
+	<step id="1600804a-e7fe-42bb-ab9b-d5b050cd5a74" location="6 7" name="AtCR" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/Messages","At CR Position")</start-script>
+	</step>
+	<transition id="939c4c11-ef3f-4ee9-b1c0-319b48a4c02c" location="3 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/ARPos_Sts}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/CRPos_Sts}=0 </transition>
+	<transition id="3ad8f1f4-a310-465b-acc2-3e35ff3a894f" location="6 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/ARPos_Sts}=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/CRPos_Sts}=1</transition>
+	<transition id="10d0e3ac-7dc3-4c4e-b061-190c804a311d" location="3 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/ARPos_Sts}=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/CRPos_Sts}=0 </transition>
+	<transition id="51cb3168-45c9-44c8-a57d-bb96e2321de0" location="6 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/ARPos_Sts}=0 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/CRPos_Sts}=0 </transition>
+	<jump id="f3a2effe-a2d9-4ede-bafa-80eff6a37f4b" location="3 9">A</jump>
+	<jump id="63b1a58d-54d2-422b-8f37-d142d3c8245c" location="6 9">A</jump>
+	<anchor id="882cfdcb-7d14-4e20-b7dc-a6f379eb6b14" location="2 2">A</anchor>
+	<link id="969a3824-5bae-46d6-abb1-a60601d60dc6" location="3 2"><up/><down/></link>
+	<link id="beb554dd-8e6b-4ee7-9e38-e2ef07a88fc4" location="2 3"><up/><down/><right/></link>
+	<link id="8a42ea4e-a742-4641-869e-6118dbc99ced" location="3 3"><up/><left/><down/></link>
+	<link id="927f8bf3-8fe9-4aee-ab51-76d44368a13e" location="3 5"><up/><down/><right/></link>
+	<link id="50604411-7b84-4264-a4b5-4f87858d537a" location="4 5"><left/><right/></link>
+	<link id="314c6562-bbef-4918-bbcf-0b8467255520" location="5 5"><left/><right/></link>
+	<link id="e7c3f21e-40d2-4d4f-b529-f15a18b62fdd" location="6 5"><left/><down/><right/></link>
+
+</sfc>

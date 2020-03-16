@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.0" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Fri Sep 06 16:59:44 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="7345ccc3-3327-4e75-8903-e8237605e87d" location="5 1" name="__begin" factory-id="begin-step">	</step>
+	<transition id="dd211f26-04fe-41d2-a6b5-6e0ebbeb32ee" location="3 4">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_SB3_Bay1_Load_Request}=1 &amp;&amp; </transition>
+	<transition id="f2b343ac-e7e7-420f-9ee1-444ad6f9d706" location="5 2">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Remote_Mode}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Run_Stage}=1 &amp;&amp; ({[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Status/FMS_Sts}=1 || {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Status/iFMS_Sts}=1) &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Status/Running_Sts}=1</transition>
+	<link id="dfb7ff1b-ed15-4eb9-b15a-16da9cd69f5c" location="3 3"><left/><down/><right/></link>
+	<link id="4895f041-0000-44c3-8621-8667658de11c" location="4 3"><left/><right/></link>
+	<link id="3c766d73-7260-4cc7-af6b-f8f95becd4e6" location="5 3"><up/><left/><down/><right/></link>
+	<link id="74a5ace8-c8df-41b8-aa90-8223a8af0f2e" location="6 3"><left/><right/></link>
+	<link id="74644cb1-0b66-4029-9e2a-3416d4d106aa" location="7 3"><left/><right/></link>
+
+</sfc>

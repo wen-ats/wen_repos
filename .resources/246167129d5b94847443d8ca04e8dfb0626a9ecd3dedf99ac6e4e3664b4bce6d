@@ -1,0 +1,294 @@
+def nextMachine(PartID,StepID):
+	logger=system.util.getLogger("NextMachine")
+	WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+	logger.infof("PartID=%s, StepID=%d, WOID=%d",PartID,StepID,WOID)
+	Recipe=system.db.runScalarPrepQuery("SELECT RecipeID FROM workorder_fms WHERE ID=?",[WOID],"FMSLine")
+	logger.infof("PartID=%s, StepID=%d, RecipeID=%d",PartID,StepID,Recipe)
+	nextStep=StepID+1
+	query="SELECT Step"+str(nextStep)+" FROM recipe_fms WHERE RecipeID="+str(Recipe)
+	nextMachine=system.db.runScalarQuery(query,"FMSLine")
+	if nextMachine==8:
+		nextMachine=81
+	logger.infof("PartID=%s, StepID=%d, NextStepID=%d, NextMachine=%d",PartID,StepID,nextStep,nextMachine)
+	return nextMachine
+
+def nextMachineRTL(MachineID):
+	logger= system.util.getLogger("ReadytoLoad")
+	machineCode=system.db.runScalarPrepQuery("SELECT cellcode FROM cell WHERE ID=?",[MachineID],"FMSLine")
+#	print machineCode
+	if machineCode=='IML':
+		logger.error("No Ready to Load Status for IML")
+		RTL=-1
+	elif machineCode=='CNC' :
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/ReadytoLoad_Sts"
+		RTL=system.tag.read(tagPath).value
+	elif machineCode=='DB':
+		if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/PickDone").value==1:
+			tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/ReadyToLoad_Sts"
+			RTL=system.tag.read(tagPath).value
+		else:
+			tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/Ready_Sts"
+			RTL=system.tag.read(tagPath).value
+	elif machineCode=='LaserCutting' or machineCode=='LM':
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/r_Rdy_for_Load"
+		RTL=system.tag.read(tagPath).value
+	elif "SB1" in machineCode:
+#		lock=int(system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Command/Lock_Cmd").value)
+		SB1position=int(system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Status/ARPos_Sts").value)
+		count=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Production/CountDB").value
+		if SB1position==1 and count>0 :
+			RTL=1
+		else:
+			RTL=0
+	elif machineCode=="ARRP":
+		RTL=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/PartPresentatRecovery").value
+	else:
+		logger.error("Error")
+		RTL=-2
+		
+	return RTL
+	
+def nextRecipe(PartID,StepID):
+	WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+	Recipe=system.db.runScalarPrepQuery("SELECT RecipeID FROM workorder_fms WHERE ID=?",[WOID],"FMSLine")
+	nextStepID=StepID+1
+	query="SELECT Model"+str(nextStepID)+" FROM recipe_fms WHERE RecipeID=" +str(Recipe)
+	nextModel=system.db.runScalarQuery(query,"FMSLine")
+	return nextModel
+
+
+def stopStatus(MachineID):
+	logger=system.util.getLogger("Stop Status")
+	machineCode=system.db.runScalarPrepQuery("SELECT cellCode FROM cell WHERE ID=?",[MachineID],"FMSLine")
+	print machineCode
+	if machineCode=="IML" or machineCode=="CNC" or machineCode=="DB":
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Stop_cmd"
+		status=system.tag.read(tagPath).value
+	elif machineCode=="LaserCutting" or machineCode=="LM":
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/w_Stop"
+		status=system.tag.read(tagPath).value
+	elif machineCode=="ARRP":
+		status=0
+	else:
+		status=-1
+	return status
+	
+def errorStatus(MachineID):
+	logger=system.util.getLogger("Alarm Status")
+	machineCode=system.db.runScalarPrepQuery("SELECT cellCode FROM cell WHERE ID=?",[MachineID],"FMSLine")
+#	print machineCode
+	if machineCode=="IML" or machineCode=="CNC" or machineCode=="DB":
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/InAlarm_Sts"
+		status=system.tag.read(tagPath).value
+	elif machineCode=="LaserCutting" or machineCode=="LM":
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/r_Error_Occured"
+		status=system.tag.read(tagPath).value
+	elif machineCode=="ARRP":
+		status=0
+	else:
+		status=-1
+	return status
+
+def estopStatus(MachineID):
+	logger=system.util.getLogger("Alarm Status")
+	machineCode=system.db.runScalarPrepQuery("SELECT cellCode FROM cell WHERE ID=?",[MachineID],"FMSLine")
+#	print machineCode
+	if machineCode=="IML" or machineCode=="CNC" or machineCode=="DB":
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/Estop_Sts"
+		status=system.tag.read(tagPath).value
+	elif machineCode=="LaserCutting" or machineCode=="LM":
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/r_Estop_Stage"
+		status=system.tag.read(tagPath).value
+	elif machineCode=="ARRP":
+		status=0
+	else:
+		status=-1
+	return status
+
+def sendARRobotFinish(MachineID):
+	logger=system.util.getLogger("Send AR Robot Finsih")
+	machineCode=system.db.runScalarPrepQuery("SELECT cellCode FROM cell WHERE ID=?",[MachineID],"FMSLine")
+	robotFinish=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/w_Robot_Finish").value
+#	print machineCode
+	if machineCode=="IML" or machineCode=="DB":
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/w_Robot_Finish_s"
+		system.tag.write(tagPath,robotFinish)
+		status=robotFinish
+	elif machineCode=="LaserCutting" or machineCode=="LM":
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/w_Robot_Finish"
+		system.tag.write(tagPath,robotFinish)
+		status=robotFinish
+	elif machineCode=="CNC":
+		tagPathRF="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/w_Robot_Finish"
+		tagPathRL="[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/RecipeLoaded"
+		system.tag.write(tagPathRF,robotFinish)
+		system.tag.write(tagPathRL,robotFinish)
+		status=robotFinish
+	elif "SB1" in machineCode:
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/Command/Lock_Cmd"
+		system.tag.write(tagPath,(not robotFinish))
+		status=robotFinish
+	elif machineCode=="ARRP":
+		status=1
+	else:
+		status=-1
+	return status
+	
+def checkGripperforPartID():
+	partPresentG1=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/G1PartPresent").value
+	partPresentG2=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/IOs/G2PartPresent").value
+	if partPresentG1==1 and partPresentG2==0:
+		partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Production/Gripper1PartID").value
+	elif partPresentG1==0 and partPresentG2==1:
+		partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Production/Gripper2PartID").value
+	else:
+		partID="Error"
+	return partID
+	
+def transferPartID(MachineID,PartID,StepID,RecipeID):
+	logger=system.util.getLogger("Transfer PartID")
+	machineCode=system.db.runScalarPrepQuery("SELECT cellCode FROM cell WHERE ID=?",[MachineID],"FMSLine")
+	
+	if machineCode=="IML":
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/PartID",PartID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID",StepID)
+	elif machineCode=="LaserCutting":
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_PartID",PartID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID",StepID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_Recipe",int(RecipeID))
+	elif machineCode=="CNC":
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Part_ID",PartID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID",StepID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Recipe_ID",int(RecipeID))
+	elif machineCode=="DB":
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/PartID",PartID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID",StepID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Recipe",int(RecipeID))
+	elif machineCode=="LM":
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_PartID",PartID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID",StepID)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_Recipe",str(RecipeID))
+		WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+		topString=str(system.db.runScalarPrepQuery("SELECT TopMsg FROM Workorder_fms WHERE ID=?",[WOID],"FMSLine"))
+		bottomString=str(system.db.runScalarPrepQuery("SELECT botMsg FROM Workorder_fms WHERE ID=?",[WOID],"FMSLine"))
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Command/SCADA_TopCustomize",topString)
+		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Command/SCADA_BottomCustomize",bottomString)
+	elif "SB1" in machineCode:
+		system.db.runPrepUpdate("Update partid_fms SET PartID=?, timestamp=NOW() WHERE machineID=?",[PartID,MachineID],"FMSLine")
+		id=shared.MES.trackStart(PartID,machineCode)
+		SB1CellID=MachineID-80
+		tagPath="[Scada]ITE/iFMS/ProductionArea/FMSLine/SB1/TrackingID/Cell"+str(SB1CellID)
+		system.tag.write(tagPath,id)
+		
+def getPartIDStepID(machineCode):
+	if machineCode=="IML":
+		partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/PartID").value
+		stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID").value
+		return [partID,stepID]
+	elif machineCode=="LaserCutting":
+		partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_PartID").value
+		stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID").value
+#		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_Recipe",int(RecipeID))
+		return [partID,stepID]
+	elif machineCode=="CNC":
+		partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Part_ID").value
+		stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID").value
+#		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Recipe_ID",int(RecipeID))
+		return [partID,stepID]
+	elif machineCode=="DB":
+		partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/PartID").value
+		stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID").value
+#		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/Recipe",int(RecipeID))
+		return [partID,stepID]
+	elif machineCode=="LM":
+		partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_PartID").value
+		stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID").value
+#		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_Recipe",RecipeID)
+		return [partID,stepID]
+	elif machineCode=="ARRP":
+		partID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/PartID").value
+		stepID=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/StepID").value
+#		system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Command/SCADA_Recipe",RecipeID)
+		return [partID,stepID]
+	else:
+		return [0,0]
+		
+def SB1Cell():
+	cellid=system.db.runScalarQuery('SELECT MachineID FROM partID_fms WHERE PartID="0" and MachineID>80 and MachineID <90 ORDER BY MachineID LIMIT 1',"FMSLine")
+	return cellid
+
+def nextMachineReadyReset():
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/NextMachineReady",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/NextMachineReady",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/CNC/Command/NextMachineReady",1)
+	
+	
+def checkStatus(MachineID):
+	logger=system.util.getLogger("AR Check Status")
+	machineCode=system.db.runScalarPrepQuery("SELECT cellcode FROM cell WHERE ID=?",[MachineID],"FMSLine")
+	if machineCode=='IML' or machineCode=='CNC' or machineCode=='DB':
+		estop=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/Estop_Sts").value
+		error=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/InAlarm_Sts").value
+		running=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/Running_Sts").value
+		RTU=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/ReadyToUnLoad_Sts").value
+	elif machineCode=='LaserCutting' or machineCode=='LM':
+		estop=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/r_Estop_Stage").value
+		error=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/r_Error_Occured").value
+		running=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/r_Run_Stage").value
+		RTU=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/"+machineCode+"/Status/r_Rdy_for_Unload").value
+	elif machineCode=="ARRP":
+		estop=1
+		error=1
+		running=1
+		RTU=1
+	else:
+		estop=0
+		error=0
+		running=0
+		RTU=0
+	if estop==0 and error==0 and running==1 and RTU==1:
+		return 1
+	else:
+		return 0
+
+def previousStn(PartID,StepID):
+	if PartID!="0" and PartID!="" and PartID!=None:
+		if (StepID)==0:
+			print "No Station"
+			MachineName="No Station"
+		if (StepID)==1:
+			print "No Previous Station"
+			MachineName="No Previous Station"
+		if (StepID)>1:
+			WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+			recipeID=system.db.runScalarPrepQuery("SELECT RECIPEID FROM WorkOrder_FMS WHERE ID=?",[WOID],"FMSLine")
+			queryPStepID="SELECT Step"+str(StepID)+' FROM recipe_fms WHERE RecipeID="'+str(recipeID)+'"'
+			pMachineID=system.db.runScalarQuery(queryPStepID,"FMSLine")
+			MachineName=system.db.runScalarPrepQuery("SELECT Name FROM cell WHERE ID=?",[pMachineID],"FMSLine")
+			return MachineName
+	else:
+		print "No PartID Present"
+		MachineName="No PartID Present"
+	return MachineName
+			
+def nextStn(PartID,StepID):
+	if PartID!="0" and PartID!="" and PartID!=None:
+		if StepID==0:
+#			print "No Station"
+			MachineName="No Station"
+		if StepID==20:
+#			print "No Next Station"
+			MachineName="No Next Station"
+		if StepID<20:
+			WOID=system.db.runScalarPrepQuery("SELECT WOID FROM master_parts WHERE PartName=?",[PartID],"FMSLine")
+			recipeID=system.db.runScalarPrepQuery("SELECT RECIPEID FROM WorkOrder_FMS WHERE ID=?",[WOID],"FMSLine")
+			queryPStepID="SELECT Step"+str(int(StepID)+1)+' FROM recipe_fms WHERE RecipeID="'+str(recipeID)+'"'
+			nMachineID=system.db.runScalarQuery(queryPStepID,"FMSLine")
+			if nMachineID==8:
+				MachineName="SB1"
+			else:
+				MachineName=system.db.runScalarPrepQuery("SELECT Name FROM cell WHERE ID=?",[nMachineID],"FMSLine")
+	else:
+		print "No PartID Present"
+		MachineName="No PartID Present"
+	return MachineName

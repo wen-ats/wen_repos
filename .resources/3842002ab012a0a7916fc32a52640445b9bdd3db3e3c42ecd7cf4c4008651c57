@@ -1,0 +1,92 @@
+<?xml version="1.0" ?>
+<sfc zoom="0.79999995" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Wed Oct 23 14:03:40 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="2cb5b55a-adba-451f-ba92-7ab51e3ebd35" location="5 1" name="__begin" factory-id="begin-step">
+<parameters>
+	<parameter><name>PartID</name><expression>0</expression></parameter>
+	<parameter><name>MachineID</name><expression>0
+</expression></parameter>
+	<parameter><name>StepID</name><expression>0</expression></parameter>
+	<parameter><name>RobotFinish</name><expression>0</expression></parameter>
+</parameters>
+	</step>
+	<step id="9efe933c-d1c6-4acb-bd49-f3a369dc4668" location="4 4" name="__end2" factory-id="end-step">	</step>
+	<step id="4e19aa30-b6fe-4072-9e32-a5c527959603" location="5 4" name="ParametersXfer" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	from time import sleep
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/PartID",chart.PartID)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/DestPos_cmd",chart.MachineID)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Operation_cmd",1)
+	sleep(1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/TaskSent_cmd",1)</start-script>
+	</step>
+	<step id="87e462fd-bfa1-4101-b3ca-303d32f64072" location="4 7" name="__end2" factory-id="end-step">	</step>
+	<step id="ac16df0d-6001-466f-b864-17e55b956589" location="5 7" name="Start" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Start_cmd",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/TaskSent_cmd",0)
+	</start-script>
+	</step>
+	<step id="84ace13e-ab3e-43ae-8f54-01997e133e76" location="4 10" name="__end2" factory-id="end-step">	</step>
+	<step id="dbc508a0-159a-4775-80b5-9fad717684d0" location="5 10" name="Moving" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Start_cmd",0)</start-script>
+	</step>
+	<step id="db85a4fa-c340-41ff-a3d1-59be3ff62688" location="4 13" name="__end2" factory-id="end-step">	</step>
+	<step id="6de80a35-e069-4748-98f1-ffccc60f8291" location="5 14" name="Finish" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	chart.RobotFinish=system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/w_Robot_Finish").value</start-script>
+	</step>
+	<step id="04941e32-d076-4396-8fff-5ebabe2dbfae" location="5 15" name="__end1" factory-id="end-step">	</step>
+	<transition id="0c17e125-8695-4ed8-b6bc-9e312d3eb646" location="4 3">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/MachineMode}!=1 || {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Estop_Sts}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/InAlarm_Sts}=1</transition>
+	<transition id="b3b2bff9-22f1-465e-8c49-0e43afe10398" location="5 3">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/TaskRequest}=1 &amp;&amp;{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/w_Robot_Finish}=1 &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=1</transition>
+	<transition id="c50054dc-c557-4ee6-872a-80b70d4ae9ca" location="4 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/MachineMode}!=1 || {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Estop_Sts}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/InAlarm_Sts}=1</transition>
+	<transition id="cf5637fa-90f6-4a25-ba8a-a8440be93970" location="5 6">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/DestPos_Sts}={[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/DestPos_cmd} &amp;&amp;
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Operation_Sts}={[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Operation_cmd} &amp;&amp; 
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/TaskRecieved}=1</transition>
+	<transition id="e0d455f6-6650-44e5-b43b-3e1e57fbb172" location="4 9">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/MachineMode}!=1 || {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Estop_Sts}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/InAlarm_Sts}=1</transition>
+	<transition id="cbacf260-1703-40d1-847e-56054ce95dae" location="5 9">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=0</transition>
+	<transition id="48e08914-78dd-401e-a655-da882df3a864" location="4 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/MachineMode}!=1 || {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Estop_Sts}=1 ||{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/InAlarm_Sts}=1</transition>
+	<transition id="a2e88401-3a44-465b-853a-1a925f3818ea" location="5 12">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/Busy_Sts}=1</transition>
+	<transition id="19e17bdc-8cbf-46d0-9ad3-83af4d2c0eff" location="5 13">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/w_Robot_Finish}=1</transition>
+	<link id="6e27cd96-f217-4e68-916f-adf874fde23f" location="4 2"><left/><down/><right/></link>
+	<link id="9186e86b-a279-45a1-a439-27565009335d" location="5 2"><up/><left/><down/></link>
+	<link id="b2dff228-f7ad-4c3c-bed1-40706f9dd09a" location="4 5"><left/><down/><right/></link>
+	<link id="87577321-fd45-495e-8463-7b7801a2d79a" location="5 5"><up/><left/><down/></link>
+	<link id="c51b008f-a988-4cf3-9d14-515e5de20485" location="4 8"><left/><down/><right/></link>
+	<link id="89841f2e-3627-4039-bf5c-e3a51cfaaf66" location="5 8"><up/><left/><down/></link>
+	<link id="2a0dd6cb-b9b0-4501-95ec-a0d9d5161ce2" location="4 11"><left/><down/><right/></link>
+	<link id="9bb8d04f-8104-4131-b1d3-b3a85164c5b1" location="5 11"><up/><left/><down/></link>
+
+</sfc>

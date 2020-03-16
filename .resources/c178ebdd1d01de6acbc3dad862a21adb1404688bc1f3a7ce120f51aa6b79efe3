@@ -1,0 +1,206 @@
+def getInventoryByEquipmentPath(eqPath):
+    #Given an equipment path, this function will return the
+    #current available quantity
+    qty = 0.0
+    if eqPath != '':
+     
+        results = system.mes.getLotInventoryByEquipment(eqPath)
+        qty = results.getNetQuantitySum()
+    return qty
+
+def rejectPart(strPartID):
+	logger=system.util.getLogger("PartReject")
+	wo=system.db.runScalarPrepQuery("SELECT woid FROM master_parts WHERE partname=?",[strPartID],'fmsline')
+	if wo!=None:
+		activeRejectQtt=system.db.runPrepQuery("SELECT QuantityActive,QuantityRejected FROM workorder_fms WHERE id=?",[wo],'fmsline')
+		if activeRejectQtt != None:
+			activeQtt=activeRejectQtt[0][0]
+			rejectQtt=activeRejectQtt[0][1]+1
+			updateResult=system.db.runPrepUpdate("UPDATE workorder_fms SET QuantityRejected=? WHERE id=?",[rejectQtt,wo],'fmsline')
+			if updateResult==1:
+				rejectPart=system.db.runPrepUpdate("UPDATE master_parts SET processed=3 WHERE partname=?",[strPartID],'fmsline')
+				if rejectPart==1:
+					logger.infof("Part Rejected, Part ID : %s",strPartID)
+				revision=int(strPartID[-2:])+1
+				strRev=str(revision).zfill(2)
+				PartID=strPartID[0:18]+strRev
+				newRevPart=system.db.runPrepUpdate("INSERT INTO master_parts(partname,woid,timestamp,processed) VALUES(?,?,CURRENT_TIMESTAMP,0)",[PartID,wo],'fmsline')
+				if newRevPart==1:
+					logger.infof("New Revision Part Created : %s",PartID)
+					shared.cells.deletePartID(strPartID)
+				
+	else:
+		logger.error("No work order was found, Part ID : %s",strPartID)
+
+def trackStart(PartName,MachineCode):
+	ID=0
+	txID=system.db.beginTransaction("FMSLine")
+	if ID==0:
+		for i in range (3):
+			MachineID=system.db.runScalarPrepQuery("SELECT IFNULL(ID,0) FROM Cell WHERE CellCode=?",[MachineCode],"FMSLine",txID)
+			PartID=system.db.runScalarPrepQuery("SELECT IFNULL(ID,0) FROM Master_parts WHERE PartName=?",[PartName],"FMSLine",txID)
+			if MachineID!=0 and PartID!=0 and MachineID!=None and PartID!=None : 
+				system.db.runPrepUpdate("INSERT INTO parts_tracking (partID,CellID,starttime) Values(?,?,NOW())",[PartID,MachineID],"FMSLine",txID)
+				ID=system.db.runScalarQuery("SELECT LAST_INSERT_ID();","FMSLine",txID)
+				
+				if ID!=0:
+					system.db.commitTransaction(txID)
+					system.db.closeTransaction(txID)
+					break
+				else:
+					system.db.rollbackTransaction(txID)
+	return ID	
+	
+def trackEnd(TrackID):
+	system.db.runPrepUpdate("UPDATE parts_tracking SET endtime=Now() WHERE id=?",[TrackID],"FMSLine")
+	
+def startMachineOEE(PartID,MachineName,StepID):
+	partID_ID=system.db.runScalarPrepQuery("SELECT ID FROM Master_Parts WHERE PartName=?",[PartID],"FMSLine")
+	machineID=system.db.runScalarPrepQuery("SELECT ID FROM cell WHERE CellCode=?",[MachineName],"FMSLine")
+	woID=system.db.runScalarPrepQuery("SELECT WOID FROM Master_Parts WHERE ID=?",[partID_ID],"FMSLine")
+	recipeID=system.db.runScalarPrepQuery("SELECT RecipeID FROM WorkOrder_fms WHERE ID=?",[woID],"FMSLine")
+	step="Step"+str(StepID)
+	model="Model"+str(StepID)
+	stepQuery="SELECT "+ step+" FROM Recipe_fms WHERE RecipeID=?"
+	stepMachineID=system.db.runScalarPrepQuery(stepQuery,[recipeID],"FMSLine")
+	if stepMachineID==machineID:
+		modelQuery="SELECT "+model+" FROM Recipe_fms WHERE RecipeID=?"
+		stepModelID=system.db.runScalarPrepQuery(modelQuery,[recipeID],"FMSLine")
+		ICT=system.db.runScalarPrepQuery("SELECT IdealCycleTime FROM Models_fms WHERE ModelID=? and cellID=?",[stepModelID,machineID],"FMSLine")
+		system.db.runPrepUpdate("INSERT INTO machineoee (PartID,machineID,IdealCycleTime,ActualCycleTime,TotalDowntime,TotalUptime,StartTime,Availability,Performance,Quality,OEE) VALUES(?,?,?,0,0,0,CURRENT_TIMESTAMP(),0,0,0,0)",[partID_ID,machineID,ICT],"FMSLine")
+		ID=int(system.db.runScalarQuery("SELECT LAST_INSERT_ID();","FMSLine"))
+	else:
+		ID=0
+	return ID
+
+def endMachineOEE(TrackID,T4Time):
+	data=system.db.runPrepQuery("SELECT * FROM machineoee WHERE ID=?",[TrackID],"FMSLine")
+	totalDT=0
+	totalDT_ActCT=0
+	T4=system.date.format(T4Time,"YYYY-MM-dd HH:mm:ss")
+	if data.rowCount!=0:
+# T2 = machine oee start time
+		T2= system.date.format(data[0][7],"YYYY-MM-dd HH:mm:ss")
+# T3 = Ideal Cycle Time
+		T3= system.date.format(system.date.addSeconds(data[0][7],data[0][3]),"YYYY-MM-dd HH:mm:ss")
+		actualCT= system.date.secondsBetween(data[0][7],T4Time)
+		dataDT= system.db.runPrepQuery("SELECT * FROM machineflagshistory WHERE timestamp>=? and timestamp<=? and machineID=? ORDER BY Timestamp",[T2,T3,data[0][2]],"FMSLine")
+		dataDT_ActCT= system.db.runPrepQuery("SELECT * FROM machineflagshistory WHERE timestamp>=? and timestamp<=? and machineID=? ORDER BY Timestamp",[T2,T4Time,data[0][2]],"FMSLine")
+		print dataDT_ActCT.rowCount
+		print dataDT.rowCount
+		for i in range( dataDT.rowCount):
+			print dataDT[i][1],dataDT[i][2],dataDT[i][3],dataDT[i][4]
+		for i in range( dataDT_ActCT.rowCount):
+			print dataDT_ActCT[i][1],dataDT_ActCT[i][2],dataDT_ActCT[i][3],dataDT_ActCT[i][4]
+		for i in range(dataDT.rowCount):
+			startDT=0
+			endDT=0
+			if (dataDT[i][2]==5 and dataDT[i][3]==1) or (dataDT[i][2]==6 and dataDT[i][3]==1): 
+				startDT= dataDT[i][4]
+				for j in range((i+1),dataDT.rowCount):
+					if (dataDT[j][2]!=5  and dataDT[j][2]!=6) or (dataDT[j][2]==6 and dataDT[j][3]==1):
+						endDT= dataDT[j][4]
+						break
+					elif j>=dataDT.rowCount:
+						endDT=T3
+			if startDT!=0 and endDT!=0:
+				totalDT=totalDT+ int(system.date.secondsBetween(startDT,endDT))
+		for i in range(dataDT_ActCT.rowCount):
+			startDT_ActCT=0
+			endDT_ActCT=0
+			if (dataDT_ActCT[i][2]==5 and dataDT_ActCT[i][3]==1) or (dataDT_ActCT[i][2]==6 and dataDT_ActCT[i][3]==1): 
+				startDT_ActCT= dataDT_ActCT[i][4]
+				for j in range((i+1),dataDT_ActCT.rowCount):
+					if (dataDT_ActCT[j][2]!=5  and dataDT_ActCT[j][2]!=6) or (dataDT_ActCT[j][2]==6 and dataDT_ActCT[j][3]==1):
+						endDT_ActCT= dataDT_ActCT[j][4]
+						break
+					elif j>=dataDT_ActCT.rowCount:
+						endDT_ActCT=T4Time
+			if startDT_ActCT!=0 and endDT_ActCT!=0:
+				totalDT_ActCT=totalDT_ActCT+ int(system.date.secondsBetween(startDT_ActCT,endDT_ActCT))
+		totalUPtime=actualCT-totalDT_ActCT
+		availability=(float(data[0][3])-float(totalDT))*100/float(data[0][3])
+		performance=float(data[0][3]*100)/float(totalUPtime)
+		quality=100
+		OEE=availability*performance*quality/10000
+		system.db.runPrepUpdate("UPDATE machineoee SET ActualCycleTime=?,TotalDowntime=?,TotalUpTime=?,Endtime=?,Availability=?,Performance=?,Quality=?,OEE=? WHERE ID=?",[actualCT,totalDT,totalUPtime,T4,availability,performance,quality,OEE,TrackID],"FMSLine")
+#	return T2,T3,actualCT,totalDT,totalDT_ActCT,totalUPtime,availability,performance,quality,OEE,data[0][3]
+
+def startLineDT():
+	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LineAvailability/LineAvailable").value==1:
+		system.db.runUpdateQuery ("INSERT INTO line_downtime(starttime) VALUES(Current_TIMESTAMP())","FMSLine")
+		ID=system.db.runScalarQuery("SELECT MAX(id) FROM line_downtime;","FMSLine")
+	return ID
+
+def endLineDT(TrackID):
+	system.db.runPrepUpdate("UPDATE line_downtime SET endTime=CURRENT_TIMESTAMP() WHERE ID=?",[TrackID],"FMSLine")
+	if system.tag.read("[Scada]ITE/iFMS/ProductionArea/FMSLine/LineAvailability/LineAvailable").value==0:
+		system.db.runPrepUpdate("UPDATE line_downtime SET endTime=CURRENT_TIMESTAMP() WHERE ID=?",[TrackID],"FMSLine")
+	
+def startLineOEE(PartID):
+	data=system.db.runPrepQuery("SELECT a.WOID,b.RecipeID,b.Quantity,b.QuantityActive,b.QuantityCompleted,b.QuantityRejected,b.WOStartTime FROM master_parts as a JOIN workOrder_fms as b ON a.WOID=b.ID WHERE a.Partname=?",[PartID],"FMSLine")
+	if data[0][3]==1 and data[0][4]==0 and data[0][5]==0:
+		ICT=0
+		leadTime=system.db.runScalarPrepQuery("SELECT ProductCycleTime FROM recipe_fms WHERE RecipeID=?",[data[0][1]],"FMSLine")
+		for i in range(1,20):
+			step="Step"+str(i)
+			model="Model"+str(i)
+			query="SELECT " + step+" , "+model+" FROM recipe_fms WHERE recipeID=?"
+			machineData=system.db.runPrepQuery(query,[data[0][1]],"FMSline")
+			if machineData[0][0]>1 and machineData[0][0]<6 and machineData[0][1]>0:
+				ICT_last=ICT
+				ICT=system.db.runScalarPrepQuery("SELECT IdealCycleTime FROM models_fms WHERE cellID=? and ModelID=?",[machineData[0][0],machineData[0][1]],"FMSLine")
+				if ICT<ICT_last:
+					ICT=ICT_last
+		PPT=leadTime+(data[0][2]-1)*ICT
+		startTime= system.db.dateFormat(data[0][6],"yyyy-MM-dd HH:mm:ss")
+		system.db.runPrepUpdate("INSERT INTO line_oee (WorkOrderID,RecipeID,StartTime,PlannedProdTime,ICT_Max,ElapsedTime,ResumeTime,OEECalculatedFlag) VALUES(?,?,?,?,?,0,?,0)",[data[0][0],data[0][1],startTime,PPT,ICT,startTime],"FMSLine")
+	
+def endLineOEE():
+	 logger=system.util.getLogger("EndLineOEE")
+#	 Update on work order status = 1 (in-production) or 2 (completed) only. IF work order paused, 
+#	 elapsedTime, resume_time, total_downtime for particular work order will not be updated	
+	 data=system.db.runQuery("SELECT t1.ID FROM WorkOrder_fms t1 JOIN line_oee t2 ON t1.id = t2.workorderid  WHERE t2.OEECalculatedFlag=0 and (t1.status=1 or t1.status=2 or t1.status=5);","FMSLine")
+	 if data.rowCount>0:
+	 	elapsedTime=0
+		for i in range(data.rowCount):
+			dataOEE=system.db.runPrepQuery("SELECT IFNULL(TIME_TO_SEC(TIMEDIFF(Current_Timestamp(), ResumeTime)),0),IFNULL(PlannedProdTime,0),IFNULL(ElapsedTime,0),IFNULL(Current_TimeStamp(),0),IFNULL(ResumeTime,0),IFNULL(totalDowntime,0) FROM Line_oee WHERE WorkOrderID=? and OEECalculatedFlag=0",[data[i][0]],"FMSLine")
+#			query="SELECT CASE Starttime<'"+dataOEE[0][4]+"' THEN '"+dataOEE[0][4]+"' ELSE StartTime as ST, CASE EndTime>'"+dataOEE[0][3]+"' THEN '"+dataOEE[0][3]+"' ELSE EndTime as ET, TIME_TO_SEC(TIMEDIFF(ET, ST)) FROM Line_downtime WHERE (Starttime>='"+dataOEE[0][4]+"' and starttime<='"+dataOEE[0][3]+"') or (endtime>='"+dataOEE[0][4]+"' and endtime<='"+dataOEE[0][3]+"' ORDER BY StartTime"
+#			print query
+			if dataOEE.rowCount>0:
+				plannedProdTime=float(dataOEE[0][1])
+				totalDowntime=float(dataOEE[0][5])
+				if dataOEE[0][2]<dataOEE[0][1]:
+					elapsedTime=dataOEE[0][2]+dataOEE[0][0]
+					resumeTime=dataOEE[0][4]
+					currentTime= dataOEE[0][3]
+					query="SELECT Starttime,EndTime,time_to_sec(timeDiff(EndTime,Starttime)),(CASE WHEN Starttime<'"+resumeTime+"' THEN '"+resumeTime+"' ELSE StartTime END),(CASE WHEN EndTime>'"+currentTime+"' THEN '"+currentTime+"' ELSE EndTime END) FROM Line_downtime WHERE (Starttime>='"+resumeTime+"' AND starttime<='"+currentTime+"') OR (endtime>='"+resumeTime+"' AND endtime<='"+currentTime+"') ORDER BY StartTime"
+					dataDT=system.db.runQuery(query,"FMSLine")
+					totalDT=0
+					lineDT=0
+					if dataDT.rowCount>0:
+						lineDT=0
+						for j in range(dataDT.rowCount):
+							if dataDT[j][2]!=None:
+								lineDT=lineDT+dataDT[j][2]
+					totalDT=lineDT+int(dataOEE[0][5])
+					system.db.runPrepUpdate("UPDATE Line_OEE SET elapsedTime=?, ResumeTime=Current_Timestamp(),TotalDowntime=? WHERE WorkOrderID=?",[elapsedTime,totalDT,data[i][0]],"FMSLine")
+			 	else:
+			 		if float(plannedProdTime)==0:
+			 			availability = 0
+			 		elif plannedProdTime < totalDowntime:
+			 			availability = 0
+			 		elif plannedProdTime >= totalDowntime:
+			 			availability = (float(dataOEE[0][1])-float(dataOEE[0][5]))*100/float(dataOEE[0][1])
+			 		CompletedParts=system.db.runScalarPrepQuery("SELECT QuantityCompleted FROM workorder_fms WHERE ID=?",[data[i][0]],"FMSLine")
+			 		RejectedParts=system.db.runScalarPrepQuery("SELECT QuantityRejected FROM workorder_fms WHERE ID=?",[data[i][0]],"FMSLine")
+			 		TotalParts_PPT=CompletedParts+RejectedParts
+			 		OrderQuantity=system.db.runScalarPrepQuery("SELECT Quantity FROM WorkOrder_fms WHERE ID=?",[data[i][0]],"FMSLine")
+			 		performance=CompletedParts*100/OrderQuantity
+			 		TotalGoodParts=CompletedParts
+			 		if TotalParts_PPT==0:
+			 			quality = 0
+			 		else:
+			 			quality=(TotalGoodParts)*100/(TotalParts_PPT)
+	 				oee=availability*performance*quality/10000
+	 				system.db.runPrepUpdate("UPDATE Line_OEE SET availability=?,performance=?,quality=?,oee=?,TotalParts_PPT=?,TotalGoodParts=?,oeecalculatedflag=1 WHERE WorkOrderID=?",[availability,performance,quality,oee,TotalParts_PPT,TotalGoodParts,data[i][0]],"FMSLine")

@@ -1,0 +1,147 @@
+<?xml version="1.0" ?>
+<sfc zoom="1.4499996" canvas="20 20" execution-mode="Callable" version="7.9.9 (b2018081621)" timestamp="Wed Jul 31 16:18:13 SGT 2019" hot-editable="false" persist-state="true" redundant-sync="false">
+	<step id="3ff436c5-9729-4662-bfd2-02572c969f97" location="5 1" name="__begin" factory-id="begin-step">	</step>
+	<step id="78b3831c-3cfa-4573-93fa-a6b74eb2cad1" location="5 2" name="AR_ASRS" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","Waiting for 'Ready to Initialize' signal from ASRS and AR") </start-script>
+	</step>
+	<step id="3dda7ad4-fc9b-4181-a0a5-38eba34f354f" location="5 4" name="InitializeAR_ASRS" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Command/Init_cmd",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Command/OPC_wr_ASRS_SCADA_Control_Init",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","Initializing AR and ASRS") 
+	</start-script>
+	</step>
+	<step id="7127c731-b6ee-4e22-8d9c-efc2276bbdfd" location="5 6" name="InitializeDoneAR_ASRS" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","AR and ASRS Initialize Done") 
+</start-script>
+	</step>
+	<step id="c30cab44-eec0-4778-83b9-24514fea2b4d" location="5 7" name="IML_LC_CNC_DB_LM_CR" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","Waiting for 'Ready to Initialize' signal from IML, LC, CNC, DB, LM and CR")</start-script>
+	</step>
+	<step id="1491c829-c4e3-4c74-b379-74e15ae2e704" location="5 9" name="InitializeIML_LC_CNC_DB_LM_CR" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/CNC/Command/Init_cmd",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Command/Init_cmd_s",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Command/Init_cmd_s",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Command/w_Initial",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Command/w_Initial",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/CR/Command/Init_cmd",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","Ready to Initialize IML, LC, CNC, DB, LM, CR") </start-script>
+	</step>
+	<step id="364c7626-a08a-4b3e-a304-d55c35d1c9e5" location="5 11" name="InitializeDoneIML_LC_CNC_DB_LM_CR" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","IML, LC, CNC, DB, LM and CR Initialize Done") 
+</start-script>
+	</step>
+	<step id="7fd7112d-0529-4a2e-848d-27946d132008" location="5 12" name="VI_SB2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","Waiting for 'Ready to Initialize' signal from VI and SB2")</start-script>
+	</step>
+	<step id="45c06090-7c08-45b1-a27e-b0bdd78fe1e0" location="5 14" name="InitializeVI_SB2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Command/w_Initial",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Command/Init_cmd_s",1)
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","Initializing VI and SB2") </start-script>
+	</step>
+	<step id="ec026d0f-5e67-4464-811e-67b9a73af618" location="5 16" name="InitializeDoneVI_SB2" factory-id="action-step">
+		<start-script>def onStart(chart, step):
+	"""
+	This will run when the step starts, before any
+	other action.
+
+	Arguments:
+		chart: A reference to the chart's scope.
+		step: A reference to this step's scope.
+	"""
+	system.tag.write("[Scada]ITE/iFMS/ProductionArea/FMSLine/InitializeSequence","VI and SB2 Initialize Done") 
+</start-script>
+	</step>
+	<step id="d3012d92-aee2-4c53-8f66-883c211167a1" location="5 17" name="__end1" factory-id="end-step">	</step>
+	<transition id="a2e4bc0e-e7e0-4041-85bc-55d9a9b789f2" location="5 3">{[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/InitReady_Sts} &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Rdy_for_Initial}</transition>
+	<transition id="c2a997d8-bc7c-447b-bb15-41f2ba0951a4" location="5 5">{[Scada]ITE/iFMS/ProductionArea/FMSLine/ASRS/Status/OPC_r_ASRS_SCADA_Control_Rdy_for_Run} &amp;&amp; {[Scada]ITE/iFMS/ProductionArea/FMSLine/AR/Status/InitDone_Sts}</transition>
+	<transition id="bb00d25b-2ad5-4117-bf74-8905557575fc" location="5 8">{[Scada]ITE/iFMS/ProductionArea/FMSLine/CNC/Status/ReadytoInit_Sts} &amp;&amp; //
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Status/InitReady_Sts} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Status/InitReady_Sts} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Initial} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Status/r_Rdy_for_Initial} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/CR/Status/InitReady_LF_Sts} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/CR/Status/InitReady_RG_Sts}</transition>
+	<transition id="4a92de96-1b0f-4581-8cdc-98f5e9942222" location="5 10">{[Scada]ITE/iFMS/ProductionArea/FMSLine/CR/Status/InitDone_LF_Sts} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/CR/Status/InitDone_RG_Sts} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/DB/Status/Ready_Sts} &amp;&amp;//
+//{[Scada]ITE/iFMS/ProductionArea/FMSLine/IML/Status/Ready_Sts} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LaserCutting/Status/r_Rdy_for_Run} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/LM/Status/r_Rdy_for_Run}</transition>
+	<transition id="0a783084-8b0c-436a-9ecd-c87c2ed75469" location="5 13">{[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Status/r_Rdy_for_Initial} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Status/InitReady_Sts}</transition>
+	<transition id="3a0f9b19-57e5-4cf8-b7c5-c3d45824dad9" location="5 15">{[Scada]ITE/iFMS/ProductionArea/FMSLine/SB2/Status/Ready_Sts} &amp;&amp;//
+{[Scada]ITE/iFMS/ProductionArea/FMSLine/VI/Status/r_Rdy_for_Run}</transition>
+
+</sfc>
